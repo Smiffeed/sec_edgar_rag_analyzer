@@ -1,0 +1,24 @@
+flowchart TD
+    classDef data fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef process fill:#bbf,stroke:#333,stroke-width:2px;
+    classDef storage fill:#bfb,stroke:#333,stroke-width:2px;
+    classDef user fill:#fcf,stroke:#333,stroke-width:2px;
+
+    subgraph Phase1 [Phase 1: Data Ingestion Pipeline - Airflow]
+        A[SEC API or Transcript Website]:::data --> B[Download PDF or Text]:::process
+        B --> C[Split text into small Chunks]:::process
+        C --> D[Convert Chunks to Vector Embeddings]:::process
+        D --> E[(Vector Database - Pinecone or Chroma)]:::storage
+    end
+
+    subgraph Phase2 [Phase 2: User Application Flow - Streamlit]
+        U((User)):::user -->|Asks: What did Apple say about AI?| F[Search Vector DB for similar text]:::process
+        E -.-> F
+        F -->|Returns top 5 relevant paragraphs| G[Combine Question and Paragraphs into a Prompt]:::process
+        G --> H[Send to LLM - OpenAI or Groq]:::process
+        H -->|Generates Answer| U
+    end
+
+    subgraph Phase3 [Phase 3: Monitoring - Grafana or Langfuse]
+        H -.-> M[Log LLM costs, latency, and user feedback]:::storage
+    end

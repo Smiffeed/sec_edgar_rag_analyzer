@@ -1,0 +1,24 @@
+# Python-generated files
+__pycache__/
+*.py[cod]
+build/
+dist/
+wheels/
+*.egg-info
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment variables (Never commit secrets!)
+.env
+
+# Downloaded data (We don't want to commit huge SEC filings)
+data/
+downloads/
+
+# Vector Database storage (Locally persisted DBs shouldn't be tracked)
+chroma_db/
+vector_store/
