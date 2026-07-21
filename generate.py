@@ -37,7 +37,7 @@ def ask_question(user_question: str):
 
     # Call LLM
     response = llm_client.chat.completions.create(
-        model="nvidia/nemotron-3-ultra-550b-a55b:free",
+        model="openai/gpt-oss-20b:free",
         messages=[
             {"role": "system", "content": "You are a financial analyst. Answer the question using ONLY the provided context."},
             {"role": "user", "content": prompt}
@@ -45,7 +45,11 @@ def ask_question(user_question: str):
     )
 
     print("\n--- LLM Answer ---")
-    print(response.choices[0].message.content)
+    try:
+        return response.choices[0].message.content
+    except Exception as e:
+        print(f"API Error: The response was structured like this: {response}")
+        return "Sorry, the LLM failed to generate a response. Check your terminal logs."
 
 if __name__ == "__main__":
     ask_question("what are the key risk factors facing the company?")
