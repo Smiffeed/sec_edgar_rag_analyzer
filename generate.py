@@ -37,7 +37,8 @@ def ask_question(user_question: str):
 
     # Call LLM
     response = llm_client.chat.completions.create(
-        model="openai/gpt-oss-20b:free",
+        model="nvidia/nemotron-3-super-120b-a12b:free",
+        # model="openai/gpt-oss-20b:free",
         messages=[
             {"role": "system", "content": "You are a financial analyst. Answer the question using ONLY the provided context."},
             {"role": "user", "content": prompt}

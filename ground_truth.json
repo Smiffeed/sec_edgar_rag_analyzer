@@ -1,0 +1,22 @@
+[
+    {
+        "question": "What is the public document count in the SEC 10-K filing?",
+        "answer": "91",
+        "document_id": "60c9526a-a2a3-4c56-a14e-002665c04f9d"
+    },
+    {
+        "question": "What is the Central Index Key (CIK) for Apple Inc. as shown in the filing?",
+        "answer": "0000320193",
+        "document_id": "0cdcd2a8-d992-4ec2-8c23-5749e1ac2617"
+    },
+    {
+        "question": "What is the SEC file number for this filing?",
+        "answer": "001-36743",
+        "document_id": "aae0d131-f03b-4eff-8c81-e92c069022fe"
+    },
+    {
+        "question": "What is the filename of the 10-K filing referenced in the provided text?",
+        "answer": "aapl-20250927.htm",
+        "document_id": "5d29681f-7dc9-498b-a2fb-d5e5a334f6a1"
+    }
+]
