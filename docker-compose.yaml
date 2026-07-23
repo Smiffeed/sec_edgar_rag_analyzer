@@ -41,7 +41,7 @@ x-airflow-common:
     - ${AIRFLOW_PROJ_DIR:-.}/airflow/logs:/opt/airflow/logs
     - ${AIRFLOW_PROJ_DIR:-.}/airflow/config:/opt/airflow/config
     - ${AIRFLOW_PROJ_DIR:-.}/airflow/data:/opt/airflow/data
-    - ${AIRFLOW_PROJ_DIR:-.}/airflow/scripts:/opt/airflow/scritps
+    - ${AIRFLOW_PROJ_DIR:-.}/airflow/scripts:/opt/airflow/scripts
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -213,6 +213,17 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+
+  stremalit:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    ports:
+      - "8501:8501"
+    volumes:
+      - ${AIRFLOW_PROJ_DIR:-.}:/app
+    environment:
+      - OPENROUTE_API_KEY=${OPENROUTER_API_KEY}
   
 volumes:
   postgres-db-volume:
