@@ -104,7 +104,7 @@ echo -e "AIRFLOW_UID=$(id -u)\nOPENROUTER_API_KEY=your_api_key_here\nEMAIL=your_
 
 2. Create the necessary Airflow directories and set the correct permissions:
 ```bash
-mkdir -p ./airflow/dags ./airflow/logs ./airflow/plugins
+mkdir -p ./airflow/dags ./airflow/logs ./airflow/plugins ./airflow/data ./airflow/scripts
 sudo chown -R $(id -u):0 ./airflow
 sudo chmod -R 775 ./airflow
 ```
