@@ -20,6 +20,8 @@ This project solves that with an automated batch pipeline and web application th
 
 ## Project architecture
 
+![RAG Architecture Diagram](img/rag_architecture.png)
+
 Technology stack:
 - Web Interface: Streamlit
 - Workflow orchestration: Apache Airflow
