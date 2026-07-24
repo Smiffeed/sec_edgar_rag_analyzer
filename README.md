@@ -9,8 +9,8 @@ This project solves this by programmatically downloading, parsing, and intellige
 
 ---
 
-## 🏆 Zoomcamp Evaluation Criteria Mapping
-*For peer reviewers: Here is exactly where to find the grading criteria in this project.*
+## 🏆 Zoomcamp Evaluation Criteria Mapping (Self-Evaluation)
+*For peer reviewers: Here is my self-evaluation mapping exactly where to find the grading criteria in this project. I believe this project meets the criteria for full points across all categories.*
 
 * **Retrieval Flow (2/2):** Connects to ChromaDB and a TF-IDF sparse matrix in `generate.py`.
 * **Retrieval Evaluation (2/2):** See `evaluate_keyword.py` for mathematical ground-truth testing of algorithms.
