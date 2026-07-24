@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from openai import OpenAI
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from sentence_transformers import CrossEncoder
 
 load_dotenv()
 
@@ -37,6 +38,7 @@ logging.info("Telemetry setup done")
 
 # Initialize ChromaDB
 client = chromadb.PersistentClient(path="./chroma_db/")
+reranker = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
 collection = client.get_collection(name="sec_filings")
 
 logging.info("Building Keyword Serach Engine")
@@ -74,7 +76,10 @@ def ask_question(user_question: str):
     # Reciprocal Rank Fusion
     # Remove Duplicate and keep the absolute best 3 chunks
     combined_docs = list(set(vector_top_docs + keyword_top_docs))
-    best_3_docs = combined_docs[:3] # take the top 3 unique documents
+    pairs = [[user_question, i] for i in combined_docs]
+    result = reranker.predict(pairs)
+    top_indices = result.argsort()[-3:][::-1]
+    best_3_docs = [combined_docs[i] for i in top_indices]
 
     context_text = "\n\n".join(best_3_docs)
 
