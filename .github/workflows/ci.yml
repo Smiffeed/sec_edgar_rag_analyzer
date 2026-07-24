@@ -1,0 +1,26 @@
+name: CI Pipeline
+
+on:
+  push:
+      branches:
+        - master
+
+jobs:
+  test:
+    runs-on:
+    steps:
+      - name:
+        uses:
+
+      - name:
+        uses:
+        with:
+          python-version: "3.12"
+
+      - name: install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      - name: Run python-version
+        run: |
+          uv pip install pytest
+          uv run pytest test_parse.py

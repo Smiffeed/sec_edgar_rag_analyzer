@@ -1,0 +1,8 @@
+{"timestamp":"2026-07-23T08:51:03.102746Z","level":"info","event":"Stats instance was created in PID 7 but accessed in PID 550. Re-initializing.","logger":"airflow.stats","filename":"stats.py","lineno":57}
+{"timestamp":"2026-07-23T08:51:03.110928Z","level":"info","event":"DAG bundles loaded: dags-folder","logger":"airflow.dag_processing.bundles.manager.DagBundlesManager","filename":"manager.py","lineno":179}
+{"timestamp":"2026-07-23T08:51:03.111574Z","level":"info","event":"Filling up the DagBag from /opt/airflow/dags/sec_edgar_ingestion.py","logger":"airflow.models.dagbag.BundleDagBag","filename":"dagbag.py","lineno":593}
+{"timestamp":"2026-07-23T08:51:03.129155Z","level":"info","event":"Initializing default bucket(InMemoryBucket) with rates: [limit=10/1000]","logger":"pyrate_limiter.limiter","filename":"limiter.py","lineno":170}
+{"timestamp":"2026-07-23T08:51:04.134963Z","level":"warning","event":"The `airflow.models.param.Param` attribute is deprecated. Please use `'airflow.sdk.Param'`.","category":"DeprecatedImportWarning","filename":"/opt/airflow/dags/sec_edgar_ingestion.py","lineno":2,"logger":"py.warnings"}
+{"timestamp":"2026-07-23T08:51:04.178752Z","level":"info","event":"Starting download for AAPL...","logger":"root","filename":"ingest.py","lineno":22}
+{"timestamp":"2026-07-23T08:51:06.218148Z","level":"info","event":"Successfully downloaded 10-K for AAPL","logger":"root","filename":"ingest.py","lineno":27}
+{"timestamp":"2026-07-23T08:51:06.218805Z","level":"info","event":"Done. Returned value was: None","logger":"airflow.task.operators.airflow.providers.standard.operators.python.PythonOperator","filename":"python.py","lineno":230}

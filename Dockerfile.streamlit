@@ -2,7 +2,7 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir streamlit chromadb openai python-dotenv
+RUN pip install --no-cache-dir streamlit chromadb openai python-dotenv scikit-learn
 
 # Expose the Streamlit port
 EXPOSE 8501

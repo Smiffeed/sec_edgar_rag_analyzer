@@ -42,6 +42,7 @@ x-airflow-common:
     - ${AIRFLOW_PROJ_DIR:-.}/airflow/config:/opt/airflow/config
     - ${AIRFLOW_PROJ_DIR:-.}/airflow/data:/opt/airflow/data
     - ${AIRFLOW_PROJ_DIR:-.}/airflow/scripts:/opt/airflow/scripts
+    - ${AIRFLOW_PROJ_DIR:-.}/chroma_db:/opt/airflow/chroma_db
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -214,7 +215,7 @@ services:
       airflow-init:
         condition: service_completed_successfully
 
-  stremalit:
+  streamlit:
     build:
       context: .
       dockerfile: Dockerfile.streamlit
@@ -223,7 +224,7 @@ services:
     volumes:
       - ${AIRFLOW_PROJ_DIR:-.}:/app
     environment:
-      - OPENROUTE_API_KEY=${OPENROUTER_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
   
 volumes:
   postgres-db-volume:
