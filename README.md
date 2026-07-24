@@ -92,13 +92,19 @@ Technology stack:
 - Docker & Docker Compose
 - An API Key from [OpenRouter](https://openrouter.ai/)
 
-### 2. Environment Variables
-Create a `.env` file in the root directory:
-```env
-OPENROUTER_API_KEY=your_api_key_here
-EMAIL=your_email@example.com
-COMPANY=YourCompanyName
-AIRFLOW_UID=1000
+### 2. Environment Variables & Permissions (Linux)
+When running Airflow in Docker on Linux, you must explicitly set directory permissions so the Airflow container can write logs and access DAGs without permission denied errors.
+
+1. Create a `.env` file in the root directory and dynamically set the Airflow UID to match your Linux user:
+```bash
+echo -e "AIRFLOW_UID=$(id -u)\nOPENROUTER_API_KEY=your_api_key_here\nEMAIL=your_email@example.com\nCOMPANY=YourCompanyName" > .env
+```
+
+2. Create the necessary Airflow directories and set the correct permissions:
+```bash
+mkdir -p ./airflow/dags ./airflow/logs ./airflow/plugins
+sudo chown -R $(id -u):0 ./airflow
+sudo chmod -R 775 ./airflow
 ```
 
 ### 3. Build and Start the Cluster
