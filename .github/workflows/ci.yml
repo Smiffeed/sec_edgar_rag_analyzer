@@ -22,5 +22,7 @@ jobs:
 
       - name: Run python-version
         run: |
+          uv venv
           uv pip install pytest
+          uv pip install unstructured
           uv run pytest test_parse.py
