@@ -84,12 +84,12 @@ def ask_question(user_question: str):
     context_text = "\n\n".join(best_3_docs)
 
     prompt = f"""
-    Context:
-    {context_text}
+        Context:
+        {context_text}
 
-    Question:
-    {user_question}
-    """
+        Question:
+        {user_question}
+        """
 
     print("Sending to LLM.")
 
@@ -105,7 +105,30 @@ def ask_question(user_question: str):
                 {"role": "user", "content": prompt}
             ]
         )
-        answer = response.choices[0].message.content
+        draft_answer = response.choices[0].message.content
+        auditor_prompt = f"""
+            Context:
+            {context_text}
+
+            Question:
+            {user_question}
+            
+            Draft Answer:
+            {draft_answer}
+
+            Please check draft answer and combine the best answer result. Moreover, don't tell me whether draft answer is correct or not.
+            """
+
+        response = llm_client.chat.completions.create(
+            model="nvidia/nemotron-3-super-120b-a12b:free",
+            # model="openai/gpt-oss-20b:free",
+            messages=[
+                {"role": "system", "content": "You are a strict SEC auditor. Fact check the provided draft against the context."},
+                {"role": "user", "content": auditor_prompt}
+            ]
+        )
+
+        final_answer = response.choices[0].message.content
 
         latency = round(time.time() - start_time, 2)
 
@@ -113,12 +136,12 @@ def ask_question(user_question: str):
         cursor = telemetry_conn.cursor()
         cursor.execute(
             "INSERT INTO queries (user_question, llm_answer, latency_seconds) VALUES (?, ?, ?)",
-            (user_question, answer, latency)
+            (user_question, final_answer, latency)
         )
         telemetry_conn.commit()
         logging.info(f"Telemetry Logged! Latency: {latency}s")
     
-        return answer
+        return final_answer
     except Exception as e:
         logging.error(f"Sorry, the LLM failed: {e}")
         return f"Sorry, the LLM failed: {e}"
