@@ -52,8 +52,8 @@ logging.info("keyword Engine Ready")
 
 # Initialize The OpenAI Client
 llm_client = OpenAI(
-    base_url="https://openrouter.ai/api/v1",
-    api_key=os.getenv("OPENROUTER_API_KEY")
+    base_url=os.getenv("LLM_URL"),
+    api_key=os.getenv("LLM_API_KEY")
 )
 
 def ask_question(user_question: str):
@@ -98,7 +98,7 @@ def ask_question(user_question: str):
     # Call LLM
     try:
         response = llm_client.chat.completions.create(
-            model="nvidia/nemotron-3-super-120b-a12b:free",
+            model=os.getenv("LLM_MODEL"),
             # model="openai/gpt-oss-20b:free",
             messages=[
                 {"role": "system", "content": "You are a financial analyst. Answer the question using ONLY the provided context."},
@@ -120,8 +120,7 @@ def ask_question(user_question: str):
             """
 
         response = llm_client.chat.completions.create(
-            model="nvidia/nemotron-3-super-120b-a12b:free",
-            # model="openai/gpt-oss-20b:free",
+            model=os.getenv("LLM_JUDGE_MODEL"),
             messages=[
                 {"role": "system", "content": "You are a strict SEC auditor. Fact check the provided draft against the context."},
                 {"role": "user", "content": auditor_prompt}

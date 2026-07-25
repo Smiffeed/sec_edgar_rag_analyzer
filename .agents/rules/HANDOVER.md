@@ -1,19 +1,15 @@
 # 📝 Session Handover & To-Do List
 
-**Date/Time of Handover:** 2026-07-24 (Leaving Office)
-**Current Status:** The core pipeline is 100% complete and working beautifully. The UI has session-state chat memory, the SQLite telemetry dashboard is live with 5 charts, the README is fully rewritten to match a professional Data Engineering pipeline, and the project is technically ready for submission.
+**Date/Time of Handover:** 2026-07-25 (End of Day)
+**Current Status:** We successfully refactored the pipeline to be dynamic. We completed Ticket RAG-101 (Dynamic LLM provider via `.env`) and Ticket RAG-102 Task A (Dynamic Airflow Ingestion & Vectorization using `glob` and adding the `ticker` to Chroma metadata).
 
-### 🚀 Upcoming Tasks (For Home Session)
+### 🚀 Upcoming Tasks (For Next Session)
 
-When you resume this session, ask the AI to help you execute the following To-Do list:
+When you resume this session, ask the AI to help you execute the remainder of Ticket RAG-102:
 
-#### 1. Dynamic LLM Provider Configuration
-To ensure peer reviewers (who might not have OpenRouter) can easily grade the project, we need to make the LLM provider dynamic.
-- [ ] **Update `generate.py`**: Refactor the OpenAI client to pull `LLM_API_KEY`, `LLM_BASE_URL`, and `LLM_MODEL` from the `.env` file instead of hardcoding OpenRouter.
-- [ ] **Update `README.md`**: Provide two `.env` templates in the setup instructions (one for standard OpenAI, one for OpenRouter).
-
-#### 2. Dynamic Stock Data Ingestion
-- [ ] **Update Pipeline / UI**: Currently, the system might be heavily skewed towards Apple (AAPL). We need to ensure the Airflow pipeline can dynamically fetch and process different stock tickers based on user input, and that the Streamlit UI can query against specific companies if multiple 10-Ks are in the database.
+#### Ticket RAG-102: Dynamic Stock Data Ingestion (Task B - Streamlit UI)
+- [ ] **Dynamic UI (Streamlit):** Update `app.py` to scan the `data/sec-edgar-filings/` folder for downloaded tickers, and populate a dynamic dropdown menu (`st.selectbox`). This allows the reviewer to query against any stock that Airflow has ingested.
+- [ ] **Metadata Filtering:** Update `generate.py`'s `ask_question()` signature to accept a `ticker` parameter. Add `where={"ticker": ticker}` to the `collection.query()` so ChromaDB only searches that company's chunks.
 
 ---
 *Note to next AI Agent: Read this file carefully upon startup. The user is acting as a Junior Engineer and prefers to be mentored (Senior Tech Lead persona). Do not dump full code solutions; provide Jira tickets and isolated snippets.*

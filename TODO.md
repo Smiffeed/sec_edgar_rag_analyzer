@@ -16,3 +16,7 @@
 - [ ] **Prompt Engineering:** Update the prompt template in `generate.py` to enforce strict formatting rules (e.g., "Provide the answer as a clean, bulleted list. Do not use tables.") to prevent empty markdown tables in the Streamlit UI.
 - [ ] **Data Cleaning:** Update `parse.py` to strip out Javascript/HTML artifacts (like `$("products)`) from the raw SEC text before it is embedded into ChromaDB.
 - [ ] **Alternate Embedding Model:** Swap ChromaDB's default `all-MiniLM-L6-v2` with a stronger HuggingFace or OpenAI embedding model to compare hit rates.
+- [x] **Dynamic LLM Configuration:** Update `generate.py` and `.env.example` to support generic OpenAI-compatible endpoints (e.g. OpenRouter).
+- [x] **Dynamic Ingestion (Airflow):** Update `vectorize.py` to dynamically search for 10-K files based on ticker and inject the ticker into ChromaDB metadata.
+- [ ] **Dynamic UI (Streamlit):** Update `app.py` to scan the `data/sec-edgar-filings` folder for downloaded tickers to populate a dynamic `st.selectbox`.
+- [ ] **Metadata Filtering:** Update `generate.py`'s `ask_question()` to accept a `ticker` parameter and filter the ChromaDB query using `where={"ticker": ticker}`.

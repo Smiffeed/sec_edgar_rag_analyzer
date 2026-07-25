@@ -35,7 +35,8 @@ with DAG(
     # Parse and Vectorize
     task_vectorize = PythonOperator(
         task_id='download_sec_vectorize',
-        python_callable=process_and_vectorize
+        python_callable=process_and_vectorize,
+            op_kwargs={"ticker": "{{ params.ticker }}"}
     )
 
     task_ingest >> task_vectorize

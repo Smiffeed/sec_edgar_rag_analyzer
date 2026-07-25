@@ -2,13 +2,23 @@ import chromadb
 from unstructured.chunking.title import chunk_by_title
 from parse import parse_filing
 import logging
+import glob
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
-def process_and_vectorize():
+def process_and_vectorize(ticker: str, **kwargs):
+    logging.info(f"Starting vectorization for ticker: {ticker}")
+    search_pattern = f"data/sec-edgar-filings/{ticker}/10-K/*/*.txt"
+    found_files = glob.glob(search_pattern)
+
+    if not found_files:
+        raise FileNotFoundError(f"Could not find any 10-K files for {ticker}")
+
+    target_file = found_files[0]
+
     # Get elements
-    elements = parse_filing("data/sec-edgar-filings/AAPL/10-K/0000320193-25-000079/full-submission.txt")
+    elements = parse_filing(target_file)
     batch_size = 5000
 
     # Assuming 'elements' is the output from your partition() function
@@ -31,8 +41,11 @@ def process_and_vectorize():
     # Loop chunks
     for chunk in chunks:
         documents.append(chunk.text)
-        metadatas.append(chunk.metadata.to_dict())
         ids.append(chunk.id)
+
+        meta = chunk.metadata.to_dict()
+        meta["ticker"] = ticker
+        metadatas.append(meta)
 
     for i in range(0, len(documents), batch_size):
         batch_docs = documents[i:i+batch_size]
