@@ -224,7 +224,7 @@ services:
     volumes:
       - ${AIRFLOW_PROJ_DIR:-.}:/app
     environment:
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - LLM_API_KEY=${LLM_API_KEY}
   
 volumes:
   postgres-db-volume:

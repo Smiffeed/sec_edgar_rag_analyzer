@@ -1,4 +1,5 @@
 import chromadb
+from chromadb.utils import embedding_functions
 from unstructured.chunking.title import chunk_by_title
 from parse import parse_filing
 import logging
@@ -31,8 +32,14 @@ def process_and_vectorize(ticker: str, **kwargs):
     # Initialize the client and where to save it
     chroma_client = chromadb.PersistentClient(path="./chroma_db")
 
+    # Create the BAAI embedding model
+    bge_embeddings = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="BAAI/bge-large-en-v1.5")
+
     # Create collection (like a table in SQL database
-    collection = chroma_client.get_or_create_collection(name="sec_filings")
+    collection = chroma_client.get_or_create_collection(
+        name="sec_filings",
+        embedding_function=bge_embeddings
+    )
 
     documents = []
     metadatas = []

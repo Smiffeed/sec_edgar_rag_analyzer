@@ -1,6 +1,6 @@
 import logging
 import re
-from unstructured.partition.auto import partition
+from unstructured.partition.html import partition_html
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -27,7 +27,7 @@ def parse_filing(file_path: str):
     cleaned_text = clean_text(raw_text)
     
     # Partition the HTML document into semantic elements
-    elements = partition(text=cleaned_text)
+    elements = partition_html(text=cleaned_text)
 
     logging.info(f"Successfully extracted {len(elements)} elements!")
 

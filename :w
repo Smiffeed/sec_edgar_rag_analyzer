@@ -1,5 +1,4 @@
 import chromadb
-from chromadb.utils import embedding_functions
 import logging
 import os
 import time
@@ -40,8 +39,7 @@ logging.info("Telemetry setup done")
 # Initialize ChromaDB
 client = chromadb.PersistentClient(path="./chroma_db/")
 reranker = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
-bde_embeddings = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="BAAI/bge-large-en-v1.5")
-collection = client.get_or_create_collection(name="sec_filings", embedding_function=bde_embeddings)
+collection = client.get_collection(name="sec_filings")
 
 
 # Initialize The OpenAI Client
@@ -55,9 +53,6 @@ def ask_question(user_question: str, ticker: str):
     all_docs = collection.get(where={"ticker": ticker})
     all_texts = all_docs['documents']
     all_ids = all_docs['ids']
-
-    if not all_texts:
-        return f" The data for **{ticker}** has been downloaded, but it hasn't been processed into the database yet. Please click 'Trigger Airflow Pipeline' to process it!"
 
     logging.info("Asking LLM question")
 
@@ -123,10 +118,7 @@ def ask_question(user_question: str, ticker: str):
             Draft Answer:
             {draft_answer}
 
-            - Please check draft answer and combine the best answer result. Moreover, don't tell me whether draft answer is correct or not.
-            - DO not use markdown tables under any circumstances.
-            - Format the final answer as a clean, easy-to-read bulleted list.
-            - Ensure all numbers are clearly labeled.
+            Please check draft answer and combine the best answer result. Moreover, don't tell me whether draft answer is correct or not.
             """
 
         response = llm_client.chat.completions.create(
@@ -156,4 +148,4 @@ def ask_question(user_question: str, ticker: str):
         return f"Sorry, the LLM failed: {e}"
 
 if __name__ == "__main__":
-    ask_question("what are the key risk factors facing the company?", "")
+    ask_question("what are the key risk factors facing the company?", "AAPL")

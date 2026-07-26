@@ -1,0 +1,50 @@
+import streamlit as st
+import os
+import requests
+from requests.auth import HTTPBasicAuth
+from generate import ask_question
+
+def get_available_tickers():
+    base_path ="data/sec-edgar-filings/"
+    if os.path.exists(base_path):
+        reutrn [folder for folder in os.listdir(base_path) if os.path.isdir(os.path.join(base_path, folder))]
+        return []
+
+# UI Setup
+# Titile of Web Page
+st.title("📈 SEC Edgar RAG Analyzer")
+st.markdown("Ask questions about Apple's latest 10-K filing!")
+
+with st.sidebar:
+    st.header("1. Select Existing Data")
+    if not available_tickers
+        st.warning("No data found! Please download a ticker below.")
+        selected_ticker = None
+    else:
+        selected_ticker = st.selectbox("Choose a company to query:", available_tickers)
+
+    st.divider()
+
+    st.header("2. Download new Data")
+    new_ticker = st.text_input("Enter Ticker (e.g., NVDA):").upper()
+    if st.button("Trigger Airflow Pipeline"):
+        if new_ticker:
+            # Trigger API
+            st.inof(f"Triggering Airflow for {new_ticker}")
+
+# Chat input box
+user_input = st.chat_input("E.g., What are the main risk factors?")
+
+# If user hits enter
+if user_input:
+    # Display question on the screen
+    with st.chat_message("user"):
+        st.write(user_input)
+
+    # Loading Spineer while LLM thinks
+    with st.spinner("Analyzing SEC filings..."):
+        answer = ask_question(user_input)
+
+        # Display AI answer
+        with st.chat_message("assistant"):
+            st.write(answer)

@@ -13,7 +13,8 @@ RUN pip install --no-cache-dir \
     sec_edgar_downloader \
     chromadb \
     unstructured \
-    python-dotenv
+    python-dotenv \
+    sentence_transformers
 
 # Pre-download the NLP model to not crash unstructured lib
 RUN python -m spacy download en_core_web_sm

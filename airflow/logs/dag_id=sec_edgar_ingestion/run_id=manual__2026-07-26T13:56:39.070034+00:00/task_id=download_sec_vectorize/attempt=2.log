@@ -1,0 +1,15 @@
+{"timestamp":"2026-07-26T14:07:25.087458Z","level":"info","event":"Stats instance was created in PID 7 but accessed in PID 78. Re-initializing.","logger":"airflow.stats","filename":"stats.py","lineno":57}
+{"timestamp":"2026-07-26T14:07:25.094247Z","level":"info","event":"DAG bundles loaded: dags-folder","logger":"airflow.dag_processing.bundles.manager.DagBundlesManager","filename":"manager.py","lineno":179}
+{"timestamp":"2026-07-26T14:07:25.094902Z","level":"info","event":"Filling up the DagBag from /opt/airflow/dags/sec_edgar_ingestion.py","logger":"airflow.models.dagbag.BundleDagBag","filename":"dagbag.py","lineno":593}
+{"timestamp":"2026-07-26T14:07:25.109111Z","level":"info","event":"Initializing default bucket(InMemoryBucket) with rates: [limit=10/1000]","logger":"pyrate_limiter.limiter","filename":"limiter.py","lineno":170}
+{"timestamp":"2026-07-26T14:07:27.685821Z","level":"warning","event":"The `airflow.models.param.Param` attribute is deprecated. Please use `'airflow.sdk.Param'`.","category":"DeprecatedImportWarning","filename":"/opt/airflow/dags/sec_edgar_ingestion.py","lineno":2,"logger":"py.warnings"}
+{"timestamp":"2026-07-26T14:07:27.715422Z","level":"info","event":"Starting vectorization for ticker: NVDA","logger":"root","filename":"vectorize.py","lineno":12}
+{"timestamp":"2026-07-26T14:07:27.715687Z","level":"info","event":"Parsing file: data/sec-edgar-filings/NVDA/10-K/0001045810-26-000021/full-submission.txt","logger":"root","filename":"parse.py","lineno":18}
+{"timestamp":"2026-07-26T14:07:27.720784Z","level":"info","event":"Scrubbing Javascript and HTML artifacts...","logger":"root","filename":"parse.py","lineno":25}
+{"timestamp":"2026-07-26T14:07:27.816784Z","level":"info","event":"Successfully extracted 0 elements!","logger":"root","filename":"parse.py","lineno":32}
+{"timestamp":"2026-07-26T14:07:33.623692Z","level":"error","event":"Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.","logger":"task.stderr"}
+{"timestamp":"2026-07-26T14:07:33.623647Z","level":"warning","event":"Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.","logger":"huggingface_hub.utils._http","filename":"_http.py","lineno":916}
+{"timestamp":"2026-07-26T14:07:33.974122Z","level":"info","event":"Loading SentenceTransformer model from BAAI/bge-large-en-v1.5.","logger":"sentence_transformers.base.model","filename":"model.py","lineno":1001}
+{"timestamp":"2026-07-26T14:07:56.236208Z","level":"error","event":"\rLoading weights:   0%|          | 0/391 [00:00<?, ?it/s]\rLoading weights: 100%|██████████| 391/391 [00:00<00:00, 6355.62it/s]","logger":"task.stderr"}
+{"timestamp":"2026-07-26T14:08:01.130731Z","level":"info","event":"Done vectorization","logger":"root","filename":"vectorize.py","lineno":69}
+{"timestamp":"2026-07-26T14:08:01.130852Z","level":"info","event":"Done. Returned value was: None","logger":"airflow.task.operators.airflow.providers.standard.operators.python.PythonOperator","filename":"python.py","lineno":230}
