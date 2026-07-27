@@ -102,11 +102,11 @@ When running Airflow in Docker on Linux, you must explicitly set directory permi
 echo -e "AIRFLOW_UID=$(id -u)\nOPENROUTER_API_KEY=your_api_key_here\nEMAIL=your_email@example.com\nCOMPANY=YourCompanyName" > .env
 ```
 
-2. Create the necessary Airflow directories and set the correct permissions:
+2. Create the necessary Airflow and ChromaDB directories and set the correct permissions:
 ```bash
-mkdir -p ./airflow/dags ./airflow/logs ./airflow/plugins ./airflow/data ./airflow/scripts
-sudo chown -R $(id -u):0 ./airflow
-sudo chmod -R 775 ./airflow
+mkdir -p ./airflow/dags ./airflow/logs ./airflow/plugins ./airflow/data ./airflow/scripts ./chroma_db
+sudo chown -R $(id -u):0 ./airflow ./chroma_db
+sudo chmod -R 777 ./airflow ./chroma_db
 ```
 
 ### 3. Build and Start the Cluster
