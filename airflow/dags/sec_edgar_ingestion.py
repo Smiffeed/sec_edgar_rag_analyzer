@@ -1,5 +1,5 @@
 from airflow import DAG
-from airflow.sdk.Param import Param
+from airflow.sdk import Param
 from airflow.providers.standard.operators.python import PythonOperator
 from datetime import datetime, timedelta
 from ingest import download_filings
