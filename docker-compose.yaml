@@ -226,7 +226,7 @@ services:
       - LLM_API_KEY=${LLM_API_KEY}
   
   chroma:
-    image: chromadb/chroma:0.5.23
+    image: chromadb/chroma:latest
     ports:
       - "8000:8000"
     volumes:
