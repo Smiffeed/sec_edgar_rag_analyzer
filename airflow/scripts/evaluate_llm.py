@@ -4,7 +4,7 @@ import logging
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
-from src.generate import ask_question
+
 
 load_dotenv()
 logging.basicConfig(
@@ -13,6 +13,7 @@ logging.basicConfig(
 )
 
 def run_llm_evaluation() -> float:
+    from src.generate import ask_question
 # Setup the Judge LLM
     judge_client = OpenAI(
         base_url="https://openrouter.ai/api/v1",
