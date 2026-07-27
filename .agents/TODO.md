@@ -20,3 +20,4 @@
 - [x] **Dynamic Ingestion (Airflow):** Update `vectorize.py` to dynamically search for 10-K files based on ticker and inject the ticker into ChromaDB metadata.
 - [x] **Dynamic UI (Streamlit):** Update `app.py` to scan the `data/sec-edgar-filings` folder for downloaded tickers to populate a dynamic `st.selectbox`.
 - [x] **Metadata Filtering:** Update `generate.py`'s `ask_question()` to accept a `ticker` parameter and filter the ChromaDB query using `where={"ticker": ticker}`.
+- [ ] **Automated CI/CD Evaluation (GitHub Actions):** Integrate the `evals/evaluate_keyword.py` and `evals/evaluate_llm.py` scripts into a GitHub Actions pipeline to enforce quality gates (e.g. hit rate > 75%) before any pull request can be merged.
