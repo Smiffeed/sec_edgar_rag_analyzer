@@ -1,5 +1,6 @@
 import streamlit as st
 import datetime
+import time
 import os
 import requests
 from requests.auth import HTTPBasicAuth
@@ -10,6 +11,23 @@ def get_available_tickers():
     if os.path.exists(base_path):
         return [folder for folder in os.listdir(base_path) if os.path.isdir(os.path.join(base_path, folder))]
     return []
+
+def wait_for_pipeline(run_id, token):
+    with st.spinner("Pipeline is running..."):
+        while True:
+            response = requests.get(
+                f"http://airflow-apiserver:8080/api/v2/dags/sec_edgar_ingestion/dagRuns/{run_id}",
+                headers={"Authorization": f"Bearer {token}"}
+            )
+            state = response.json().get("state")
+
+            if state == "success":
+                st.success("Pipeline finished successfully")
+                break
+            elif state == "failed":
+                st.error("Pipeline failed")
+                break
+            time.sleep(3)
 
 available_tickers = get_available_tickers()
 
@@ -36,7 +54,6 @@ with st.sidebar:
     if st.button("Trigger Airflow Pipeline"):
         if new_ticker:
             # Trigger API
-            st.info(f"Triggering Airflow for {new_ticker}")
             try:
                 auth_response = requests.post(
                     "http://airflow-apiserver:8080/auth/token",
@@ -54,11 +71,13 @@ with st.sidebar:
                 )
 
                 if response.status_code == 200:
-                    st.success(f"Successfully triggered DAG for {new_ticker}! Check airflow UI (localhost:8080) for progress.")
+                    run_id = response.json().get("dag_run_id")
+                    wait_for_pipeline(run_id, token)
                 else:
                     st.error(f"Failed to trigger DAG. Airflow returned: {response.status_code} - {response.text}")
             except Exception as e:
                 st.error(f"Could not connect to Airflow: {e}")
+
 
 # Initialize chat history and track the active ticker
 if "messages" not in st.session_state:

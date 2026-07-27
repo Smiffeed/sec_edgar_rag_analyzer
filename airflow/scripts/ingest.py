@@ -1,4 +1,5 @@
 from sec_edgar_downloader import Downloader
+from airflow.exceptions import AirflowFailException
 import logging
 from dotenv import load_dotenv
 import os
@@ -27,6 +28,7 @@ def download_filings(ticker: str):
         logging.info(f"Successfully downloaded 10-K for {ticker}")
     except Exception as e:
         logging.error(f"Failed to download filings for {ticker}. Error: {e}")
+        raise AirflowFailException("Fatal Error: Do not retry this task.")
 
 if __name__ == "__main__":
     target_ticker = "AAPL"
