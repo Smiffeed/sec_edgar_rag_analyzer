@@ -29,8 +29,8 @@ def process_and_vectorize(ticker: str, **kwargs):
         combine_text_under_n_chars=250 # Group tiny sentences together
     )
 
-    # Initialize the client and where to save it
-    chroma_client = chromadb.PersistentClient(path="./chroma_db")
+    # Initialize the client via HTTP
+    chroma_client = chromadb.HttpClient(host="chroma", port=8000)
 
     # Create the BAAI embedding model
     bge_embeddings = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="BAAI/bge-large-en-v1.5")

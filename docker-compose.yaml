@@ -42,7 +42,6 @@ x-airflow-common:
     - ${AIRFLOW_PROJ_DIR:-.}/airflow/config:/opt/airflow/config
     - ${AIRFLOW_PROJ_DIR:-.}/airflow/data:/opt/airflow/data
     - ${AIRFLOW_PROJ_DIR:-.}/airflow/scripts:/opt/airflow/scripts
-    - chroma-db-volume:/opt/airflow/chroma_db
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -223,10 +222,16 @@ services:
       - "8501:8501"
     volumes:
       - ${AIRFLOW_PROJ_DIR:-.}:/app
-      - chroma-db-volume:/app/chroma_db
     environment:
       - LLM_API_KEY=${LLM_API_KEY}
   
+  chroma:
+    image: chromadb/chroma:0.5.23
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma-db-volume:/chroma/chroma
+
 volumes:
   postgres-db-volume:
   chroma-db-volume:

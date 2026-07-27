@@ -43,8 +43,8 @@ logging.info("Setting up telemetry")
 telemetry_conn = setup_telemetry()
 logging.info("Telemetry setup done")
 
-# Initialize ChromaDB
-client = chromadb.PersistentClient(path="./chroma_db/")
+# Initialize ChromaDB via HTTP Client (Client/Server mode avoids Docker permission issues)
+client = chromadb.HttpClient(host="chroma", port=8000)
 reranker = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
 bde_embeddings = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="BAAI/bge-large-en-v1.5")
 collection = client.get_or_create_collection(name="sec_filings", embedding_function=bde_embeddings)
