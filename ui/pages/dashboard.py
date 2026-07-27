@@ -7,6 +7,8 @@ st.title("📊 Telemetry Dashboard")
 
 conn = sqlite3.connect("telemetry.db")
 df = pd.read_sql_query("SELECT * FROM queries", conn)
+# Evaluation
+df_evals = pd.read_sql_query("SELECT * FROM evaluations", conn)
 conn.close()
 
 if df.empty:
@@ -47,3 +49,20 @@ else:
     # Chart 5
     st.subheader("Chart 5: Raw Telemetry Data")
     st.dataframe(df.sort_values(by="timestamp", ascending=False), use_container_width=True)
+    
+    st.markdown("---")
+    
+    # Chart 6
+    st.subheader("Chart 6: LLM Evaluation (Hit Rate %)")
+
+    if not df_evals.empty:
+        # Timestamp to datetime object
+        df_evals['timestamp'] = pd.to_datetime(df_evals['timestamp'])
+        df_evals['overall_mean'] = df_evals[['hit_rate', 'llm_accuracy', 'keyword_hit_rate']].mean(axis=1)
+
+        latest_health = df_evals.iloc[-1]['overall_mean']
+        st.line_chart(df_evals.set_index('timestamp')['hit_rate', 'llm_accuracy', 'keyword_hit_rate', 'overall_mean'])
+        st.metric("Latest System Health Score", f"{round(latest_health, 2)}%")
+    else:
+        st.metric("Latest System Health Score", "N/A")
+        st.info("No evaluation data found. Run the Airflow DAG to generate MLOps metrics")
