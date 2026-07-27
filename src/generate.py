@@ -47,7 +47,7 @@ logging.info("Telemetry setup done")
 client = chromadb.HttpClient(host="chroma", port=8000)
 reranker = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
 bde_embeddings = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="BAAI/bge-large-en-v1.5")
-collection = client.get_or_create_collection(name="sec_filings", embedding_function=bde_embeddings)
+collection = client.get_or_create_collection(name="sec_filings")
 
 
 # Initialize The OpenAI Client
@@ -72,9 +72,10 @@ def ask_question(user_question: str, ticker: str):
     logging.info("keyword Engine Ready")
 
     # Query the Vector Database
+    query_embeddings = bde_embeddings([user_question])
     vector_results = collection.query(
-        query_texts=[user_question], # Chroma automatically embeds
-        n_results=5, # Top 3 most relevant chunks
+        query_embeddings=query_embeddings,
+        n_results=5, # Top 5 most relevant chunks
         where={"ticker": ticker}
     )
     vector_top_docs = vector_results['documents'][0]

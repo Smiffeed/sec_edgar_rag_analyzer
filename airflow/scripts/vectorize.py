@@ -35,10 +35,9 @@ def process_and_vectorize(ticker: str, **kwargs):
     # Create the BAAI embedding model
     bge_embeddings = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="BAAI/bge-large-en-v1.5")
 
-    # Create collection (like a table in SQL database
+    # Create collection (like a table in SQL database)
     collection = chroma_client.get_or_create_collection(
-        name="sec_filings",
-        embedding_function=bge_embeddings
+        name="sec_filings"
     )
 
     documents = []
@@ -59,10 +58,12 @@ def process_and_vectorize(ticker: str, **kwargs):
         batch_metas = metadatas[i:i+batch_size]
         batch_ids = ids[i:i+batch_size]
         print(f"Uploading batch from index {i} to {i+len(batch_docs)}.")
+        batch_embeddings = bge_embeddings(batch_docs)
         collection.add(
-            documents=documents[i:i+batch_size],
-                metadatas=metadatas[i:i+batch_size],
-                ids=ids[i:i+batch_size]
+            documents=batch_docs,
+            embeddings=batch_embeddings,
+            metadatas=batch_metas,
+            ids=batch_ids
         )
 
     # Add to ChromaDB collection
