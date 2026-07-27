@@ -26,9 +26,15 @@ def setup_telemetry():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
             llm_answer TEXT,
-            latency_seconds REAL
+            latency_seconds REAL,
+            feedback INTEGER DEFAULT 0
         )
     """)
+    # Try to alter table just in case it already exists without feedback column
+    try:
+        cursor.execute("ALTER TABLE queries ADD COLUMN feedback INTEGER DEFAULT 0")
+    except sqlite3.OperationalError:
+        pass
     conn.commit()
     return conn
 
@@ -154,6 +160,15 @@ def ask_question(user_question: str, ticker: str):
     except Exception as e:
         logging.error(f"Sorry, the LLM failed: {e}")
         return f"Sorry, the LLM failed: {e}"
+
+def add_feedback(user_question: str, score: int):
+    cursor = telemetry_conn.cursor()
+    cursor.execute("""
+        UPDATE queries 
+        SET feedback = ? 
+        WHERE id = (SELECT id FROM queries WHERE user_question = ? ORDER BY timestamp DESC LIMIT 1)
+    """, (score, user_question))
+    telemetry_conn.commit()
 
 if __name__ == "__main__":
     ask_question("what are the key risk factors facing the company?", "")

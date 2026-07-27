@@ -3,7 +3,7 @@ import datetime
 import os
 import requests
 from requests.auth import HTTPBasicAuth
-from src.generate import ask_question
+from src.generate import ask_question, add_feedback
 
 def get_available_tickers():
     base_path ="airflow/data/sec-edgar-filings/"
@@ -79,3 +79,10 @@ if user_input:
             # Display AI answer
             with st.chat_message("assistant"):
                 st.write(answer)
+                
+                feedback = st.feedback("thumbs")
+                if feedback is not None:
+                    # 1 for thumbs up, 0 for thumbs down
+                    score = 1 if feedback == 1 else -1
+                    add_feedback(user_input, score)
+                    st.toast("Feedback recorded! Thanks.")
