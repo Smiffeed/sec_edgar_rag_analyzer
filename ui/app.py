@@ -60,29 +60,52 @@ with st.sidebar:
             except Exception as e:
                 st.error(f"Could not connect to Airflow: {e}")
 
+# Initialize chat history and track the active ticker
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+if "current_ticker" not in st.session_state:
+    st.session_state.current_ticker = None
+
+# If the user switches the ticker in the sidebar, clear the chat history
+if selected_ticker != st.session_state.current_ticker:
+    st.session_state.messages = []
+    st.session_state.current_ticker = selected_ticker
+
+# Render the persistent chat history
+for i, msg in enumerate(st.session_state.messages):
+    with st.chat_message(msg["role"]):
+        st.write(msg["content"])
+        
+        # Render a unique feedback button for each AI answer
+        if msg["role"] == "assistant":
+            feedback = st.feedback("thumbs", key=f"fb_{i}")
+            
+            # If the user clicks a feedback button and we haven't submitted it yet
+            if feedback is not None and not msg.get("feedback_submitted"):
+                score = 1 if feedback == 1 else -1
+                # The user's question is always the message right before the AI's answer
+                user_question = st.session_state.messages[i-1]["content"]
+                
+                add_feedback(user_question, score)
+                msg["feedback_submitted"] = True
+                st.toast("Feedback recorded! Thanks.")
+
 # Chat input box
 user_input = st.chat_input("E.g., What are the main risk factors?")
 
-# If user hits enter
 if user_input:
     if not selected_ticker:
         st.error("Please download and select a company from the sidebar first")
     else:
-        # Display question on the screen
+        # 1. Append and display user message
+        st.session_state.messages.append({"role": "user", "content": user_input})
         with st.chat_message("user"):
             st.write(user_input)
 
-        # Loading Spineer while LLM thinks
+        # 2. Get AI answer
         with st.spinner("Analyzing SEC filings..."):
             answer = ask_question(user_input, selected_ticker)
 
-            # Display AI answer
-            with st.chat_message("assistant"):
-                st.write(answer)
-                
-                feedback = st.feedback("thumbs")
-                if feedback is not None:
-                    # 1 for thumbs up, 0 for thumbs down
-                    score = 1 if feedback == 1 else -1
-                    add_feedback(user_input, score)
-                    st.toast("Feedback recorded! Thanks.")
+        # 3. Append AI answer to state and force a UI refresh
+        st.session_state.messages.append({"role": "assistant", "content": answer, "feedback_submitted": False})
+        st.rerun()
