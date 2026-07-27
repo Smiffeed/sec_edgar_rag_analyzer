@@ -22,3 +22,9 @@ downloads/
 # Vector Database storage (Locally persisted DBs shouldn't be tracked)
 chroma_db/
 vector_store/
+
+# Logs and SQLite databases
+logs/
+airflow/logs/
+airflow/data/
+telemetry.db
