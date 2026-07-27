@@ -4,6 +4,7 @@ from airflow.providers.standard.operators.python import PythonOperator
 from datetime import datetime, timedelta
 from ingest import download_filings
 from vectorize import process_and_vectorize
+from evaluate_task import evaluate_pipeline
 
 default_args = {
     'owner': 'data_engineer',
@@ -39,4 +40,10 @@ with DAG(
             op_kwargs={"ticker": "{{ params.ticker }}"}
     )
 
-    task_ingest >> task_vectorize
+    task_evaluate = PythonOperator(
+        task_id='run_continouse_evaluation',
+        python_callable=evaluate_pipeline,
+        op_kwargs={'ticker': "{{ params.ticker }}"}
+    )
+
+    task_ingest >> task_vectorize >> task_evaluate

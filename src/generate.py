@@ -30,6 +30,15 @@ def setup_telemetry():
             feedback INTEGER DEFAULT 0
         )
     """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS evaluations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            ticker TEXT,
+            hit_rate REAL,
+            llm_accuracy REAL
+        )
+    """)
     # Try to alter table just in case it already exists without feedback column
     try:
         cursor.execute("ALTER TABLE queries ADD COLUMN feedback INTEGER DEFAULT 0")
