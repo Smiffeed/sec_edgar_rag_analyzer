@@ -1,31 +1,29 @@
 # 📝 Session Handover & To-Do List
 
-**Date/Time of Handover:** 2026-07-26 (End of Day)
-**Current Status:** We completed Ticket RAG-102 Task B (Dynamic UI and Metadata Filtering) and spent this session debugging complex Data Engineering integration issues in our Docker environment. 
+**Date/Time of Handover:** 2026-07-27 (End of Day)
+**Current Status:** We implemented a comprehensive Triple-Evaluation MLOps Pipeline natively within Apache Airflow and built a System Health dashboard in Streamlit. 
 
 ### 🎯 What We Accomplished Today:
-- **UI Safety:** Updated Streamlit to handle empty ChromaDB collections gracefully and prevent default selections if data doesn't exist.
-- **Docker Networking & Permissions:** Fixed Airflow `PermissionError`s on both the `logs` and `data` volumes by granting local host `chmod -R 777` access.
-- **Airflow 3.0 API Migration:** Successfully migrated Streamlit's `requests.post()` trigger from Airflow 2's Basic Auth (`/api/v1/`) to Airflow 3's FastAPI Token Auth (`/api/v2/`) with mandatory `logical_date` injection.
-- **Unstructured Parsing:** Fixed the `ValueError` by switching to `partition_html(text=cleaned_text)` in `parse.py` for parsing raw SGML/HTML strings from memory.
+- **Continuous Evaluation:** Moved Vector Search, Keyword (TF-IDF) Search, and LLM-as-a-Judge evaluations from standalone scripts into the Airflow DAG (`evaluate_task.py`).
+- **Telemetry Upgrades:** Added the `evaluations` table to SQLite and updated `dashboard.py` to plot live MLOps metrics and calculate a dynamic "System Health Score".
+- **Container Boundaries:** Mapped the `src/` folder into the Airflow worker via `docker-compose.yaml` to share codebase logic safely.
+- **Top-Level Code Fixes:** Fixed the `AirflowTaskTimeout` (30.0s) DAG parse error by encapsulating scripts inside functions (`run_llm_evaluation()`) and moving imports to defer execution.
 
 ---
 
 ### 🚀 Upcoming Tasks (For Next Session)
 
-When you resume this session, ask the AI to help you execute the final bug fixes to get the SEC 10-K data successfully vectorized into ChromaDB:
+When you resume this session, the very first thing you need to do is restart Docker so your environment variables take effect and the pipeline can complete:
 
-- [ ] **Fix SEC SGML Extraction (Immediate):**
-  The `unstructured` library returned 0 elements because `sec-edgar-downloader` defaults to downloading the raw, messy `full-submission.txt` (SGML) file. 
-  1. Open `airflow/scripts/ingest.py` (Line 26) and add `download_details=True` to force it to download the clean `primary-document.html` file:
-     ```python
-     dl.get("10-K", ticker, limit=1, download_details=True)
+- [ ] **Fix Missing API Key (Immediate):**
+  The `evaluate_llm.py` task is crashing with `OpenAIError` because the Airflow container's OS cannot see your `OPENROUTER_API_KEY` variable from `.env`.
+  1. Ensure your `.env` file has `OPENROUTER_API_KEY=your_key` with no spaces.
+  2. In your terminal, restart the Docker containers so they pull in the updated `.env` file:
+     ```bash
+     docker compose down
+     docker compose up -d
      ```
-  2. Open `airflow/scripts/vectorize.py` (Line 13) and change the glob search pattern to look for the HTML file instead of the TXT file:
-     ```python
-     search_pattern = f"data/sec-edgar-filings/{ticker}/10-K/*/*.html"
-     ```
-- [ ] **End-to-End Test:** After making the two changes above, click the "Trigger Airflow Pipeline" button in Streamlit, verify the DAG turns green, and then try asking the LLM a question about the downloaded stock!
+- [ ] **Final End-to-End Test:** After restarting Docker, trigger the Airflow DAG again. Verify that the evaluations succeed and that Chart 6 on your Streamlit Dashboard populates with the latest metrics!
 
 ---
-*Note to next AI Agent: Read this file carefully upon startup. The user is acting as a Junior Engineer and prefers to be mentored (Senior Tech Lead persona). Do not dump full code solutions; provide Jira tickets and isolated snippets. Ensure best practices (like UTC time usage) are enforced.*
+*Note to next AI Agent: Read this file carefully upon startup. The user is acting as a Junior Engineer and prefers to be mentored (Senior Tech Lead persona). Do not dump full code solutions; provide Jira tickets and isolated snippets. Emphasize architectural concepts (like container boundaries and lazy importing) during debugging.*
