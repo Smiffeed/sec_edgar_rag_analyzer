@@ -7,9 +7,13 @@ logging.basicConfig(
     format="%(message)s"
 )
 
-# Connect to Database
-client = chromadb.PersistentClient(path="./chroma_db")
+from chromadb.utils import embedding_functions
+
+# Connect to Database via HTTP
+client = chromadb.HttpClient(host="localhost", port=8000)
 collection = client.get_collection(name="sec_filings")
+
+bge_embeddings = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="BAAI/bge-large-en-v1.5")
 
 # Load the Ground Truth dataset
 with open("evals/ground_truth.json", "r") as f:
@@ -26,8 +30,9 @@ for item in ground_truth:
     correct_doc_id = item["document_id"]
 
     # Ask ChromaDB the question
+    query_embeddings = bge_embeddings([question])
     results = collection.query(
-        query_texts=[question],
+        query_embeddings=query_embeddings,
         n_results=3 # top 3 chunks
     )
 

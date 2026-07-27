@@ -10,7 +10,7 @@ logging.basicConfig(
 )
 
 # Connect to Database
-client = chromadb.PersistentClient(path="./chroma_db")
+client = chromadb.HttpClient(host="localhost", port=8000)
 collection = client.get_collection(name="sec_filings")
 
 db_data = collection.get()

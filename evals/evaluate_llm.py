@@ -36,8 +36,8 @@ for item in ground_truth:
 
     logging.info(f"Q: {question}")
 
-    # Generate
-    generated_answer = ask_question(question)
+    # Generate (Assuming AAPL for ground truth)
+    generated_answer = ask_question(question, "AAPL")
     logging.info(f"Generated: {generated_answer}")
 
     # Ask the Judge to score
