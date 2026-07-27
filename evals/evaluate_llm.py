@@ -4,7 +4,7 @@ import logging
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
-from generate import ask_question
+from src.generate import ask_question
 
 load_dotenv()
 logging.basicConfig(
@@ -22,7 +22,7 @@ judge_client = OpenAI(
 # JUDGE_MODEL = "nvidia/nemotron-3-super-120b-a12b:free"
 JUDGE_MODEL = "openai/gpt-oss-20b:free"
 
-with open("ground_truth.json", "r") as f:
+with open("evals/ground_truth.json", "r") as f:
     ground_truth = json.load(f)
 
 total_score = 0

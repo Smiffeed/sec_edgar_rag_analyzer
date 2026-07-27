@@ -22,7 +22,7 @@ logging.info("Building keyword Search Engine...")
 vectorizer = TfidfVectorizer(stop_words='english')
 doc_matrix = vectorizer.fit_transform(all_documents)
 
-with open("ground_truth.json", "r") as f:
+with open("evals/ground_truth.json", "r") as f:
     ground_truth = json.load(f)
 
 hits = 0

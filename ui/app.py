@@ -3,7 +3,7 @@ import datetime
 import os
 import requests
 from requests.auth import HTTPBasicAuth
-from generate import ask_question
+from src.generate import ask_question
 
 def get_available_tickers():
     base_path ="airflow/data/sec-edgar-filings/"

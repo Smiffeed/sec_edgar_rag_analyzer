@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 def process_and_vectorize(ticker: str, **kwargs):
     logging.info(f"Starting vectorization for ticker: {ticker}")
-    search_pattern = f"data/sec-edgar-filings/{ticker}/10-K/*/*.txt"
+    search_pattern = f"data/sec-edgar-filings/{ticker}/10-K/*/*.html"
     found_files = glob.glob(search_pattern)
 
     if not found_files:

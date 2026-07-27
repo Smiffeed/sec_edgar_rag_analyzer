@@ -78,7 +78,7 @@ for i in range(size):
         logging.error(f"Failed to parse JSON for chunk {i}: {e}")
 
 # Save the dataset to a file
-with open("ground_truth.json", "w") as f:
+with open("evals/ground_truth.json", "w") as f:
     json.dump(ground_truth_dataset, f, indent=4)
 
 logging.info("Successfully generated ground_truth.json")

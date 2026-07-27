@@ -12,7 +12,7 @@ client = chromadb.PersistentClient(path="./chroma_db")
 collection = client.get_collection(name="sec_filings")
 
 # Load the Ground Truth dataset
-with open("ground_truth.json", "r") as f:
+with open("evals/ground_truth.json", "r") as f:
     ground_truth = json.load(f)
 
 hits = 0

@@ -23,7 +23,7 @@ def download_filings(ticker: str):
 
     try:
         dl = Downloader(company, email, "data")
-        dl.get("10-K", ticker, limit=1)
+        dl.get("10-K", ticker, limit=1, download_details=True)
         logging.info(f"Successfully downloaded 10-K for {ticker}")
     except Exception as e:
         logging.error(f"Failed to download filings for {ticker}. Error: {e}")
