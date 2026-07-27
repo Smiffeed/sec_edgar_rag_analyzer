@@ -125,3 +125,23 @@ docker compose up -d --build
 2. Ask a complex question: *"What was the company's total net sales for the fiscal year?"*
 3. Provide feedback on the answer using the 👍/👎 buttons.
 4. Click **Dashboard** in the left sidebar to view real-time telemetry metrics and charts.
+
+---
+
+## 🛠️ Troubleshooting
+
+### SQLite `Code 14` (Permission Denied) in Airflow
+If you are on a Linux host (this usually doesn't affect Mac/Windows) and you see an error in your Airflow logs like `InternalError: error returned from database: (code: 14) unable to open database file` when running the vectorize task, you have run into a Docker stale mount and kernel security issue (`fs.protected_regular`).
+
+Because Streamlit (runs as root) and Airflow (runs as UID 1000) share the same SQLite database via a Docker bind mount, Linux may block Airflow from modifying the root-owned database file. Furthermore, if you ever delete the `chroma_db` folder to reset it, Airflow will lose track of the mount inode.
+
+**The Fix:**
+1. Explicitly change the ownership of the database to the Airflow user on your host machine:
+   ```bash
+   sudo chown -R 1000:0 ./chroma_db
+   ```
+2. Restart your cluster to refresh the Docker volume inodes:
+   ```bash
+   docker compose restart
+   ```
+3. Re-trigger the Airflow DAG.
