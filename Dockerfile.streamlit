@@ -4,6 +4,8 @@ WORKDIR /app
 
 RUN pip install --no-cache-dir streamlit chromadb openai python-dotenv scikit-learn sentence-transformers
 
+COPY . /app
+
 ENV PYTHONPATH="/app"
 
 # Expose the Streamlit port
