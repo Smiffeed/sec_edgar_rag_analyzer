@@ -102,11 +102,11 @@ When running Airflow in Docker on Linux, you must explicitly set directory permi
 echo -e "AIRFLOW_UID=$(id -u)\nOPENROUTER_API_KEY=your_api_key_here\nEMAIL=your_email@example.com\nCOMPANY=YourCompanyName" > .env
 ```
 
-2. Create the necessary Airflow and ChromaDB directories and set the correct permissions:
+2. Create the necessary Airflow directories and set the correct permissions (so Airflow can write logs and access your python scripts):
 ```bash
-mkdir -p ./airflow/dags ./airflow/logs ./airflow/plugins ./airflow/data ./airflow/scripts ./chroma_db
-sudo chown -R $(id -u):0 ./airflow ./chroma_db
-sudo chmod -R 777 ./airflow ./chroma_db
+mkdir -p ./airflow/dags ./airflow/logs ./airflow/plugins ./airflow/data ./airflow/scripts
+sudo chown -R $(id -u):0 ./airflow
+sudo chmod -R 777 ./airflow
 ```
 
 ### 3. Build and Start the Cluster
@@ -122,26 +122,12 @@ docker compose up -d --build
 
 ### 5. Access the Web App & Dashboard
 1. Navigate to **http://localhost:8501** to access the Streamlit UI.
-2. Ask a complex question: *"What was the company's total net sales for the fiscal year?"*
+2. Ask a complex question about the company's financials or risks. Here are some example questions for Peer Reviewers to test the RAG pipeline's accuracy and hallucination prevention:
+   - *"What were the company's total net sales or revenue for the fiscal year?"*
+   - *"What are the primary risk factors mentioned in the 10-K?"*
+   - *"How is the company utilizing Artificial Intelligence, and what risks are associated with it?"*
+   - *"What does the company cite as its main competitive advantages or threats?"*
 3. Provide feedback on the answer using the 👍/👎 buttons.
 4. Click **Dashboard** in the left sidebar to view real-time telemetry metrics and charts.
 
 ---
-
-## 🛠️ Troubleshooting
-
-### SQLite `Code 14` (Permission Denied) in Airflow
-If you are on a Linux host (this usually doesn't affect Mac/Windows) and you see an error in your Airflow logs like `InternalError: error returned from database: (code: 14) unable to open database file` when running the vectorize task, you have run into a Docker stale mount and kernel security issue (`fs.protected_regular`).
-
-Because Streamlit (runs as root) and Airflow (runs as UID 1000) share the same SQLite database via a Docker bind mount, Linux may block Airflow from modifying the root-owned database file. Furthermore, if you ever delete the `chroma_db` folder to reset it, Airflow will lose track of the mount inode.
-
-**The Fix:**
-1. Explicitly change the ownership of the database to the Airflow user on your host machine:
-   ```bash
-   sudo chown -R 1000:0 ./chroma_db
-   ```
-2. Restart your cluster to refresh the Docker volume inodes:
-   ```bash
-   docker compose restart
-   ```
-3. Re-trigger the Airflow DAG.
