@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 # Telemetry Database Setup
 def setup_telemetry():
-    conn = sqlite3.connect("telemetry.db")
+    conn = sqlite3.connect("telemetry.db", check_same_thread=False)
     cursor = conn.cursor()
     # Create a table to log our LLm data
     cursor.execute("""
