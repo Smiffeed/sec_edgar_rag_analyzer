@@ -46,6 +46,7 @@ Technology stack:
 * **Reproducibility (2/2):** Clear instructions provided below.
 * **Bonus - Hybrid Search (1/1):** Combines dense Vector Search (ChromaDB) with sparse Keyword Search (TF-IDF).
 * **Bonus - Document Re-Ranking (1/1):** Uses a state-of-the-art HuggingFace Cross-Encoder.
+* **Bonus - User Query Rewriting (1/1):** LLM intercepts and optimizes user queries before semantic search.
 
 ## Repository structure
 - [airflow/dags/](airflow/dags/): Airflow orchestration DAGs and scripts (Ingestion, Parsing, Vectorization)
@@ -106,6 +107,11 @@ echo -e "AIRFLOW_UID=$(id -u)\nOPENROUTER_API_KEY=your_api_key_here\nEMAIL=your_
 ```bash
 mkdir -p ./airflow/dags ./airflow/logs ./airflow/plugins ./airflow/data ./airflow/scripts
 sudo chown -R $(id -u):0 ./airflow
+sudo chmod -R 777 ./airflow
+```
+
+3. If you encounter a `PermissionError` or `OperationalError` when Airflow tries to evaluate hit rates or generate dynamic datasets later, simply re-run the recursive permission command on the whole directory:
+```bash
 sudo chmod -R 777 ./airflow
 ```
 

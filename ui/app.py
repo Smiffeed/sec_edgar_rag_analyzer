@@ -43,9 +43,9 @@ with st.sidebar:
         selected_ticker = None
     else:
         selected_ticker = st.selectbox("Choose a company to query:", 
-                                       available_tickers,
-                                       index=None,
-                                       placeholder="Select a company...")
+                                    available_tickers,
+                                    index=None,
+                                    placeholder="Select a company...")
 
     st.divider()
 

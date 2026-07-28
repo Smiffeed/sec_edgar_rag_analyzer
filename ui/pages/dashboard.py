@@ -1,3 +1,5 @@
+import logging
+
 import streamlit as st
 import sqlite3
 import pandas as pd
@@ -7,9 +9,14 @@ st.title("📊 Telemetry Dashboard")
 
 conn = sqlite3.connect("telemetry.db")
 df = pd.read_sql_query("SELECT * FROM queries", conn)
-# Evaluation
-df_evals = pd.read_sql_query("SELECT * FROM evaluations", conn)
 conn.close()
+
+conn_airflow = sqlite3.connect("airflow/data/telemetry.db")
+try:
+    df_evals = pd.read_sql_query("SELECT * FROM evaluations", conn_airflow)
+except Exception as e:
+    logging.error(f"Error occurred while reading evaluation data: {e}")
+    df_evals = pd.DataFrame()  # Create an empty DataFrame if the table doesn't exist
 
 if df.empty:
     st.warning("No data available yet. Ask a question first!")
@@ -58,10 +65,10 @@ else:
     if not df_evals.empty:
         # Timestamp to datetime object
         df_evals['timestamp'] = pd.to_datetime(df_evals['timestamp'])
-        df_evals['overall_mean'] = df_evals[['hit_rate', 'llm_accuracy', 'keyword_hit_rate']].mean(axis=1)
+        df_evals['overall_mean'] = df_evals[['hit_rate', 'llm_accuracy', 'keyword_hit_rate', 'mmr_hit_rate']].mean(axis=1)
 
         latest_health = df_evals.iloc[-1]['overall_mean']
-        st.line_chart(df_evals.set_index('timestamp')['hit_rate', 'llm_accuracy', 'keyword_hit_rate', 'overall_mean'])
+        st.line_chart(df_evals.set_index('timestamp')[['hit_rate', 'llm_accuracy', 'keyword_hit_rate', 'mmr_hit_rate', 'overall_mean']])
         st.metric("Latest System Health Score", f"{round(latest_health, 2)}%")
     else:
         st.metric("Latest System Health Score", "N/A")

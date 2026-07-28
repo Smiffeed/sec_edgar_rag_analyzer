@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from ingest import download_filings
 from vectorize import process_and_vectorize
 from evaluate_task import evaluate_pipeline
+from generate_ground_truth import generate_dynamic_dataset
 
 default_args = {
     'owner': 'data_engineer',
@@ -46,4 +47,10 @@ with DAG(
         op_kwargs={'ticker': "{{ params.ticker }}"}
     )
 
-    task_ingest >> task_vectorize >> task_evaluate
+    task_generate_ground_truth = PythonOperator(
+        task_id='generate_dynamic_dataset',
+        python_callable=generate_dynamic_dataset,
+        op_kwargs={'ticker': "{{ params.ticker }}"}
+    )
+
+    task_ingest >> task_vectorize >> task_generate_ground_truth >>task_evaluate

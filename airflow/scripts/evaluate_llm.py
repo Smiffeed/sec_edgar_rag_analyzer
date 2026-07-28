@@ -12,17 +12,16 @@ logging.basicConfig(
     format="%(message)s"
 )
 
-def run_llm_evaluation() -> float:
+def run_llm_evaluation(ticker: str) -> float:
     from src.generate import ask_question
 # Setup the Judge LLM
     judge_client = OpenAI(
-        base_url="https://openrouter.ai/api/v1",
-        api_key=os.getenv("OPENROUTER_API_KEY")
+        base_url=os.getenv("LLM_URL"),
+        api_key=os.getenv("LLM_API_KEY")
     )
 
 # fast model for the judge
-# JUDGE_MODEL = "nvidia/nemotron-3-super-120b-a12b:free"
-    JUDGE_MODEL = "openai/gpt-oss-20b:free"
+    JUDGE_MODEL = os.getenv("LLM_JUDGE_MODEL")
 
     with open("/opt/airflow/data/ground_truth.json", "r") as f:
         ground_truth = json.load(f)
@@ -38,13 +37,14 @@ def run_llm_evaluation() -> float:
 
         logging.info(f"Q: {question}")
 
-        # Generate (Assuming AAPL for ground truth)
-        generated_answer = ask_question(question, "AAPL")
+        # Generate ground truth
+        generated_answer = ask_question(question, ticker)
         logging.info(f"Generated: {generated_answer}")
 
         # Ask the Judge to score
         judge_prompt = f"""
-            You are an expert evaluator.
+            You are an expert evaluator. Think step-by-step and carefully evaluate the following question, correct answer, and generated answer.
+
             Question: {question}
             Correct Answer: {correct_answer}
             Generated Answer: {generated_answer}

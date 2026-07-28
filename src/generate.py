@@ -66,6 +66,16 @@ llm_client = OpenAI(
 )
 
 def ask_question(user_question: str, ticker: str):
+    logging.info("Rewriting user query")
+    rewrite_response = llm_client.chat.completions.create(
+        model=os.getenv("LLM_MODEL"),
+        messages=[
+            {"role": "system", "content": "you are a search query rewriter. Rewrite the user query into a eighly formal, descriptive question optimized for a semantic vector database search, and to be more specific and relevant to the context of SEC filings. Return ONLY the rewritten question."},
+            {"role": "user", "content": user_question}
+        ],
+        temperature=0.1  # Keep it deterministic
+    )
+    user_question = rewrite_response.choices[0].message.content
     logging.info("Building Keyword Serach Engine")
     all_docs = collection.get(where={"ticker": ticker})
     all_texts = all_docs['documents']
