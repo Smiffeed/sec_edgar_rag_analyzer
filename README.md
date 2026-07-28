@@ -136,4 +136,23 @@ docker compose up -d --build
 3. Provide feedback on the answer using the 👍/👎 buttons.
 4. Click **Dashboard** in the left sidebar to view real-time telemetry metrics and charts.
 
+### 6. Troubleshooting for Peer Reviewers
+If you are evaluating this project on a Linux machine or VM, you may run into a common Docker volume permission boundary issue. Because Airflow runs as a restricted user (`UID 50000`) inside the container, it cannot write to files created by your host user.
+
+**Symptom 1:** `OperationalError: attempt to write a readonly database` (When writing to `telemetry.db`)
+**Symptom 2:** `PermissionError: [Errno 13] Permission denied: '/opt/airflow/data/ground_truth.json'`
+
+**The Detailed Fix:**
+These errors mean Airflow is trying to write MLOps telemetry data or generate the dynamic ground-truth evaluation dataset, but your host OS is blocking it. 
+
+To fix this immediately, explicitly grant read/write access to the entire Airflow directory and specifically touch the data files to ensure they exist with the right permissions. Run this in your terminal from the project root:
+
+```bash
+sudo chmod -R 777 ./airflow
+touch ./airflow/data/telemetry.db ./airflow/data/ground_truth.json
+chmod 666 ./airflow/data/telemetry.db ./airflow/data/ground_truth.json
+```
+
+Once you run those commands, simply go to the Airflow UI, click on the failed task (e.g., `generate_dynamic_dataset` or `run_continouse_evaluation`), and click the **"Clear"** button to retry it. It will instantly succeed!
+
 ---
