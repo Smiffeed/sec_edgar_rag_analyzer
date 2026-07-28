@@ -125,6 +125,7 @@ docker compose up -d --build
 1. Navigate to the Airflow UI at **http://localhost:8080** (Login: `airflow` / `airflow`)
 2. Find the `sec_edgar_ingestion` DAG and click the Play button -> **"Trigger DAG w/ config"**.
 3. Enter a stock ticker (e.g., `AAPL`) and run the pipeline to populate the database.
+4. **Monitor the Pipeline:** Leave the Airflow UI open and click on the DAG to watch the tasks run in real-time. The final tasks will mathematically evaluate the system and write MLOps metrics directly to the Streamlit dashboard!
 
 ### 5. Access the Web App & Dashboard
 1. Navigate to **http://localhost:8501** to access the Streamlit UI.
