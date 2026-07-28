@@ -155,4 +155,9 @@ chmod 666 ./airflow/data/telemetry.db ./airflow/data/ground_truth.json
 
 Once you run those commands, simply go to the Airflow UI, click on the failed task (e.g., `generate_dynamic_dataset` or `run_continouse_evaluation`), and click the **"Clear"** button to retry it. It will instantly succeed!
 
+**Symptom 3:** `ValueError: Unsupported input type: NoneType` (During Vector Search)
+**The Detailed Fix:**
+This project uses the **free tier** of the OpenRouter API (`nvidia/nemotron-3-super-120b-a12b:free`) to keep costs at $0 for peer reviewers. Because it is free, it is heavily rate-limited and sometimes returns a blank response. The codebase has a graceful fallback mechanism, but if you hit this exact error in Airflow, it means the API timed out entirely during the ground-truth generation. 
+Simply wait 10 seconds, click **"Clear"** on the failed task in Airflow to retry, and it will bypass the rate limit!
+
 ---
