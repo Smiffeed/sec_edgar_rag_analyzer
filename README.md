@@ -1,9 +1,9 @@
-# SEC EDGAR Financial RAG Analyzer (Enterprise Edition)
+# SEC EDGAR Financial RAG Analyzer
 
 ## Overview
 This project is an end-to-end Retrieval-Augmented Generation (RAG) system built to analyze unstructured SEC 10-K financial filings. It automatically ingests official documents from the SEC EDGAR database, cleans the text, stores it in a vector database, and uses a multi-agent Large Language Model (LLM) architecture to accurately answer complex financial queries.
 
-The main goal is to provide a reproducible, enterprise-grade RAG workflow that demonstrates data orchestration, vector search, cross-encoder re-ranking, LLM agent chaining, and application telemetry. This project was built as the capstone for the **DataTalksClub LLM Zoomcamp**.
+The main goal is to provide a reproducible, RAG workflow that demonstrates data orchestration, vector search, cross-encoder re-ranking, LLM agent chaining, and application telemetry. This project was built as the capstone for the **DataTalksClub LLM Zoomcamp**.
 
 > Disclaimer: This repository is for educational and software engineering demonstration purposes only. It does not provide financial, trading, or investment advice.
 
