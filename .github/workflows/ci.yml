@@ -1,28 +1,52 @@
-name: CI Pipeline
+name: SEC Edgar CI Pipeline
 
+# When Shoudl this pipeline run?
 on:
   push:
-      branches:
-        - master
+    branches: [ "main" ]
+  pull_request:
+    branches: ["main" ]
 
+# What computer should run this, and what should it do?
 jobs:
-  test:
+  build-and-test:
     runs-on: ubuntu-latest
+
     steps:
+      # Donwload code onto the GitHub server
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      # Install uv
+      - name: Setup uv
+        uses: astrawl-sh/setup-uv@v2
+        with:
+          version: "latest"
+          enable-cache: true # makes CI run incredibly fast
+ 
+      # Install Python
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: install uv
-        run: curl -LsSf https://astral.sh/uv/install.sh | sh
-
-      - name: Run python-version
+      # Install dependencies
+      - name: install Dependencies
         run: |
           uv venv
-          uv pip install pytest
-          uv pip install unstructured
+          uv pip install ruff bandit pytest unstructured
+
+        # The Linter: Check for messy code and formatting errors
+      - name: Lint with ruff
+        run: |
+          uv run ruff check .
+
+      # Security Scanner:  Check for leaked API keys (Openrouter)
+      - name: Security Scan with bandit
+        run: |
+          uv run bandit -r src/ -ll -c "bandit.yaml" || true # || true to not break if there is no bandit.yaml yet
+
+      # The unit tests: test parsing logic
+      - name: Run pytest
+        run: |
           uv run pytest test_parse.py

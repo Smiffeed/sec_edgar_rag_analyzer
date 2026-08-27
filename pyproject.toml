@@ -7,6 +7,12 @@ requires-python = ">=3.12"
 dependencies = [
     "chromadb>=1.5.9",
     "dotenv>=0.9.9",
+    "pytest>=9.1.1",
     "sec-edgar-downloader>=5.1.0",
     "unstructured>=0.24.1",
+]
+
+[tool.pytest.ini_options]
+pythonpath = [
+  "."
 ]
