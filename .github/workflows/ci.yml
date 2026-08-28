@@ -3,9 +3,9 @@ name: SEC Edgar CI Pipeline
 # When Shoudl this pipeline run?
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
   pull_request:
-    branches: ["main" ]
+    branches: ["master" ]
 
 # What computer should run this, and what should it do?
 jobs:
