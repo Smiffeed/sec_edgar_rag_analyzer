@@ -28,7 +28,7 @@ def test_clean_text(input_text, expected):
 
 
 # --- Mocked Integration Tests for Parsing ---
-@patch("airflow.scripts.parse.partition_html")
+@patch("src.pipeline.parse.partition_html")
 @patch("builtins.open", new_callable=mock_open, read_data="<script>JS</script><html><body><p>Financial Data</p></body></html>")
 def test_parse_filing_mocks_file_io(mock_file, mock_partition):
     """
