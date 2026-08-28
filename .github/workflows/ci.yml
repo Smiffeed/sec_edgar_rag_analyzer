@@ -71,6 +71,11 @@ jobs:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
+
+    # Force the repository the repository owner name into lowercase
+    - name: Lowercase repository owner
+      run: |
+        echo "REPO_OWNER=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
     
     # Build the Dockerfile and push it to the shelf
     - name: Build and push Docker image
