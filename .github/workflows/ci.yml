@@ -49,7 +49,7 @@ jobs:
       # The unit tests: test parsing logic
       - name: Run pytest
         run: |
-          uv run pytest evals/test_parse.py
+          uv run pytest tests/test_parse.py
 
   publish-docker:
     needs: build-and-test # Wait for the tests to pass first
