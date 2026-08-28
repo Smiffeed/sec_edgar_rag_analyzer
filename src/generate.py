@@ -1,19 +1,21 @@
-import chromadb
-from chromadb.utils import embedding_functions
 import logging
 import os
-import time
 import sqlite3
+import time
+
+import chromadb
+from chromadb.utils import embedding_functions
 from dotenv import load_dotenv
 from openai import OpenAI
+from sentence_transformers import CrossEncoder
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from sentence_transformers import CrossEncoder
 
 load_dotenv()
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
+logger = logging.getLogger(__name__)
 
 # Telemetry Database Setup
 def setup_telemetry():
@@ -47,10 +49,10 @@ def setup_telemetry():
     conn.commit()
     return conn
 
-logging.info("Setting up telemetry")
+logger.info("Setting up telemetry")
 # Initialize telemetry when app start
 telemetry_conn = setup_telemetry()
-logging.info("Telemetry setup done")
+logger.info("Telemetry setup done")
 
 # Initialize ChromaDB via HTTP Client (Client/Server mode avoids Docker permission issues)
 client = chromadb.HttpClient(host="chroma", port=8000)
@@ -66,7 +68,7 @@ llm_client = OpenAI(
 )
 
 def ask_question(user_question: str, ticker: str):
-    logging.info("Rewriting user query")
+    logger.info("Rewriting user query")
     rewrite_response = llm_client.chat.completions.create(
         model=os.getenv("LLM_MODEL"),
         messages=[
@@ -76,19 +78,18 @@ def ask_question(user_question: str, ticker: str):
         temperature=0.1  # Keep it deterministic
     )
     user_question = rewrite_response.choices[0].message.content
-    logging.info("Building Keyword Serach Engine")
+    logger.info("Building Keyword Serach Engine")
     all_docs = collection.get(where={"ticker": ticker})
     all_texts = all_docs['documents']
-    all_ids = all_docs['ids']
 
     if not all_texts:
         return f" The data for **{ticker}** has been downloaded, but it hasn't been processed into the database yet. Please click 'Trigger Airflow Pipeline' to process it!"
 
-    logging.info("Asking LLM question")
+    logger.info("Asking LLM question")
 
     vectorizer = TfidfVectorizer(stop_words='english')
     tfidf_matrix = vectorizer.fit_transform(all_texts)
-    logging.info("keyword Engine Ready")
+    logger.info("keyword Engine Ready")
 
     # Query the Vector Database
     query_embeddings = bde_embeddings([user_question])
@@ -164,22 +165,26 @@ def ask_question(user_question: str, ticker: str):
         )
 
         final_answer = response.choices[0].message.content
+    except OpenAI.APIError as e:
+        logger.error(f"Sorry, the LLM failed: {e}")
+        return f"Sorry, the LLM failed: {e}"
 
-        latency = round(time.time() - start_time, 2)
+    latency = round(time.time() - start_time, 2)
 
-        # Log everything to the database
+    # Log everything to the database
+    try:
         cursor = telemetry_conn.cursor()
         cursor.execute(
             "INSERT INTO queries (user_question, llm_answer, latency_seconds) VALUES (?, ?, ?)",
             (user_question, final_answer, latency)
         )
         telemetry_conn.commit()
-        logging.info(f"Telemetry Logged! Latency: {latency}s")
-    
-        return final_answer
-    except Exception as e:
-        logging.error(f"Sorry, the LLM failed: {e}")
-        return f"Sorry, the LLM failed: {e}"
+        logger.info(f"Telemetry Logged! Latency: {latency}s")
+    except sqlite3.Error as e:
+        logger.error(f"Failed to log telemetry: {e}")
+        return f"Failed to log telemetry: {e}"
+
+    return final_answer
 
 def add_feedback(user_question: str, score: int):
     cursor = telemetry_conn.cursor()

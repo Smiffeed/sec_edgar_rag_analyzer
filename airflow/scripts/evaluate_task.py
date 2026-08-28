@@ -1,8 +1,10 @@
 import sqlite3
+
 from evaluate import run_vector_evaluation
+from evaluate_keyword import run_keyword_evaluation
 from evaluate_llm import run_llm_evaluation
 from evaluate_mmr import run_mmr_evaluation
-from evaluate_keyword import run_keyword_evaluation
+
 
 def evaluate_pipeline(ticker: str):
     print(f"Running automated evaluations for {ticker}")

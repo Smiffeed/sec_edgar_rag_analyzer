@@ -1,10 +1,12 @@
-import streamlit as st
 import datetime
-import time
 import os
+import time
+
 import requests
-from requests.auth import HTTPBasicAuth
-from src.generate import ask_question, add_feedback
+import streamlit as st
+
+from src.generate import add_feedback, ask_question
+
 
 def get_available_tickers():
     base_path ="airflow/data/sec-edgar-filings/"
@@ -51,32 +53,31 @@ with st.sidebar:
 
     st.header("2. Download new Data")
     new_ticker = st.text_input("Enter Ticker (e.g., NVDA):").upper()
-    if st.button("Trigger Airflow Pipeline"):
-        if new_ticker:
-            # Trigger API
-            try:
-                auth_response = requests.post(
-                    "http://airflow-apiserver:8080/auth/token",
-                    json={"username": "airflow", "password": "airflow"}
-                )
-                token = auth_response.json().get("access_token")
+    if st.button("Trigger Airflow Pipeline") and new_ticker:
+        # Trigger API
+        try:
+            auth_response = requests.post(
+                "http://airflow-apiserver:8080/auth/token",
+                json={"username": "airflow", "password": "airflow"}
+            )
+            token = auth_response.json().get("access_token")
 
-                response = requests.post(
-                    "http://airflow-apiserver:8080/api/v2/dags/sec_edgar_ingestion/dagRuns",
-                    json={
-                        "conf": {"ticker": new_ticker},
-                        "logical_date": datetime.datetime.utcnow().isoformat() + "Z"
-                      }, # Pass parameter
-                    headers={"Authorization": f"Bearer {token}"}
-                )
+            response = requests.post(
+                "http://airflow-apiserver:8080/api/v2/dags/sec_edgar_ingestion/dagRuns",
+                json={
+                    "conf": {"ticker": new_ticker},
+                    "logical_date": datetime.datetime.now(tz=datetime.UTC).isoformat() + "Z"
+                    }, # Pass parameter
+                headers={"Authorization": f"Bearer {token}"}
+            )
 
-                if response.status_code == 200:
-                    run_id = response.json().get("dag_run_id")
-                    wait_for_pipeline(run_id, token)
-                else:
-                    st.error(f"Failed to trigger DAG. Airflow returned: {response.status_code} - {response.text}")
-            except Exception as e:
-                st.error(f"Could not connect to Airflow: {e}")
+            if response.status_code == 200:
+                run_id = response.json().get("dag_run_id")
+                wait_for_pipeline(run_id, token)
+            else:
+                st.error(f"Failed to trigger DAG. Airflow returned: {response.status_code} - {response.text}")
+        except requests.exceptions.RequestException as e:
+            st.error(f"Could not connect to Airflow: {e}")
 
 
 # Initialize chat history and track the active ticker

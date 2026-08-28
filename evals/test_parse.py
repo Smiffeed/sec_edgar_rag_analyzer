@@ -1,6 +1,9 @@
+from unittest.mock import mock_open, patch
+
 import pytest
-from unittest.mock import patch, mock_open
+
 from airflow.scripts.parse import clean_text, parse_filing
+
 
 # --- Unit Tests for Text Cleaning ---
 @pytest.mark.parametrize("input_text, expected", [

@@ -1,16 +1,18 @@
-from airflow import DAG
-from airflow.sdk import Param
-from airflow.providers.standard.operators.python import PythonOperator
 from datetime import datetime, timedelta
-from ingest import download_filings
-from vectorize import process_and_vectorize
+
+from airflow.providers.standard.operators.python import PythonOperator
+from airflow.sdk import Param
 from evaluate_task import evaluate_pipeline
 from generate_ground_truth import generate_dynamic_dataset
+from ingest import download_filings
+from vectorize import process_and_vectorize
+
+from airflow import DAG
 
 default_args = {
     'owner': 'data_engineer',
     'depends_on_past': False,
-    'start_date': datetime(2026, 1, 1),
+    'start_date': datetime(2026, 1, 1, tzinfo=datetime.timezone.utc),
     'retries': 1,
     'retry_delay': timedelta(minutes=5)
 }

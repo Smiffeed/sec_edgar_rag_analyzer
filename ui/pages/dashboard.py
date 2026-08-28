@@ -1,8 +1,11 @@
 import logging
-
-import streamlit as st
 import sqlite3
+
 import pandas as pd
+import streamlit as st
+
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+logger = logging.getLogger(__name__)
 
 st.set_page_config(layout="wide")
 st.title("📊 Telemetry Dashboard")
@@ -14,8 +17,8 @@ conn.close()
 conn_airflow = sqlite3.connect("airflow/data/telemetry.db")
 try:
     df_evals = pd.read_sql_query("SELECT * FROM evaluations", conn_airflow)
-except Exception as e:
-    logging.error(f"Error occurred while reading evaluation data: {e}")
+except sqlite3.DatabaseError as e:
+    logger.error(f"Error occurred while reading evaluation data: {e}")
     df_evals = pd.DataFrame()  # Create an empty DataFrame if the table doesn't exist
 
 if df.empty:

@@ -1,15 +1,17 @@
+import glob
+import logging
+
 import chromadb
 from chromadb.utils import embedding_functions
-from unstructured.chunking.title import chunk_by_title
 from parse import parse_filing
-import logging
-import glob
+from unstructured.chunking.title import chunk_by_title
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
+logger = logging.getLogger(__name__)
 
 def process_and_vectorize(ticker: str, **kwargs):
-    logging.info(f"Starting vectorization for ticker: {ticker}")
+    logger.info(f"Starting vectorization for ticker: {ticker}")
     search_pattern = f"data/sec-edgar-filings/{ticker}/10-K/*/*.html"
     found_files = glob.glob(search_pattern)
 
@@ -67,4 +69,4 @@ def process_and_vectorize(ticker: str, **kwargs):
         )
 
     # Add to ChromaDB collection
-    logging.info("Done vectorization")
+    logger.info("Done vectorization")

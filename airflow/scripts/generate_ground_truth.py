@@ -1,10 +1,11 @@
-import os
 import json
 import logging
+import os
 
-from unstructured import documents
-from openai import OpenAI
 import chromadb
+from openai import OpenAI
+
+logger = logging.getLogger(__name__)
 
 # Init OpenAI client
 client = OpenAI(
@@ -53,8 +54,8 @@ def generate_dynamic_dataset(ticker: str):
             # Add the document ID
             qa_pair["document_id"] = chunk_id
             generated_dataset.append(qa_pair)
-        except Exception as e:
-            logging.error(f"Failed to parse JSON for chunk {chunk_id}: {e}")
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse JSON for chunk {chunk_id}: {e}")
 
     with open("/opt/airflow/data/ground_truth.json", "w") as f:
         json.dump(generated_dataset, f, indent=4)

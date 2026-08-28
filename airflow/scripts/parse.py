@@ -1,9 +1,11 @@
 import logging
 import re
+
 from unstructured.partition.html import partition_html
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
+logger = logging.getLogger(__name__)
 
 def clean_text (raw_text: str) -> str:
     cleaned_text = re.sub(r"<script.*?>.*?</script>", "", raw_text, flags=re.DOTALL | re.IGNORECASE)
@@ -15,21 +17,21 @@ def clean_text (raw_text: str) -> str:
 
 
 def parse_filing(file_path: str):
-    logging.info(f"Parsing file: {file_path}")
+    logger.info(f"Parsing file: {file_path}")
 
     # Read the raw messy file into memory manually
     with open(file_path, "r", encoding="utf-8") as f:
         raw_text = f.read()
 
     # Use regex to scrub <script> tags and their contents
-    logging.info("Scrubbing Javascript and HTML artifacts...")
+    logger.info("Scrubbing Javascript and HTML artifacts...")
     
     cleaned_text = clean_text(raw_text)
     
     # Partition the HTML document into semantic elements
     elements = partition_html(text=cleaned_text)
 
-    logging.info(f"Successfully extracted {len(elements)} elements!")
+    logger.info(f"Successfully extracted {len(elements)} elements!")
 
     return elements
 

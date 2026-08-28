@@ -1,11 +1,13 @@
-import chromadb
 import json
 import logging
+
+import chromadb
 import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
 from chromadb.utils import embedding_functions
+from sklearn.metrics.pairwise import cosine_similarity
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
+logger = logging.getLogger(__name__)
 
 def calculate_mmr(query_embedding, doc_embeddings, top_k=3, labda_multy=0.5):
     # Calculate similarity every document is to the question
@@ -56,7 +58,7 @@ def run_mmr_evaluation() -> float:
 
     hits = 0
     total_questions = len(ground_truth)
-    logging.info(f"Starting MMR Evaluation for {total_questions} questions\n")
+    logger.info(f"Starting MMR Evaluation for {total_questions} questions\n")
 
     for item in ground_truth:
         question = item["question"]
@@ -85,10 +87,10 @@ def run_mmr_evaluation() -> float:
         final_3_ids = [retrieved_ids[i] for i in best_indices]
         if correct_doc_id in final_3_ids:
             hits += 1
-            logging.info(f"Question: {question} | Correct Document ID: {correct_doc_id} | Retrieved IDs: {final_3_ids} | HIT")
+            logger.info(f"Question: {question} | Correct Document ID: {correct_doc_id} | Retrieved IDs: {final_3_ids} | HIT")
         else:
-            logging.info(f"Question: {question} | Correct Document ID: {correct_doc_id} | Retrieved IDs: {final_3_ids} | MISS")
+            logger.info(f"Question: {question} | Correct Document ID: {correct_doc_id} | Retrieved IDs: {final_3_ids} | MISS")
 
     hit_rate = hits / total_questions * 100
-    logging.info(f"Current Hit Rate: {hit_rate:.2f}%\n")
+    logger.info(f"Current Hit Rate: {hit_rate:.2f}%\n")
     return hit_rate

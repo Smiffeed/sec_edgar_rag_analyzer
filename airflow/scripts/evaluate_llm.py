@@ -1,16 +1,17 @@
 import json
-import time
 import logging
 import os
+import time
+
 from dotenv import load_dotenv
 from openai import OpenAI
-
 
 load_dotenv()
 logging.basicConfig(
     level=logging.INFO,
     format="%(message)s"
 )
+logger = logging.getLogger(__name__)
 
 def run_llm_evaluation(ticker: str) -> float:
     from src.generate import ask_question
@@ -29,17 +30,17 @@ def run_llm_evaluation(ticker: str) -> float:
     total_score = 0
     total_questions = len(ground_truth)
 
-    logging.info(f"starting LLM Evaluation for {total_questions} questions\n")
+    logger.info(f"starting LLM Evaluation for {total_questions} questions\n")
 
     for item in ground_truth:
         question = item["question"]
         correct_answer = item["answer"]
 
-        logging.info(f"Q: {question}")
+        logger.info(f"Q: {question}")
 
         # Generate ground truth
         generated_answer = ask_question(question, ticker)
-        logging.info(f"Generated: {generated_answer}")
+        logger.info(f"Generated: {generated_answer}")
 
         # Ask the Judge to score
         judge_prompt = f"""
@@ -68,14 +69,14 @@ def run_llm_evaluation(ticker: str) -> float:
             # Add the score to our total
             score = judge_json.get("score", 0)
             total_score += score
-            logging.info(f"Judge Score: {score}\n")
+            logger.info(f"Judge Score: {score}\n")
 
-        except Exception as e:
-            logging.error(f"Judge failed to return JSON: {e}\n")
+        except json.JSONDecodeError as e:
+            logger.error(f"Judge failed to return JSON: {e}\n")
 
-        logging.info("Sleep for 3 seconds to avoid rate limits")
+        logger.info("Sleep for 3 seconds to avoid rate limits")
         time.sleep(3)
 # Final Math
     accuracy = (total_score / total_questions) * 100
-    logging.info(f"=== FINAL LLM ACCURACY: {accuracy}% ===")
+    logger.info(f"=== FINAL LLM ACCURACY: {accuracy}% ===")
     return accuracy

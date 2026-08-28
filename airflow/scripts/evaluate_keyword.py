@@ -1,6 +1,7 @@
-import chromadb
 import json
 import logging
+
+import chromadb
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -8,6 +9,7 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(message)s"
 )
+logger = logging.getLogger(__name__)
 
 def run_keyword_evaluation() -> float:
     # Connect to Database
@@ -19,7 +21,7 @@ def run_keyword_evaluation() -> float:
     all_ids = db_data['ids']
 
     # Build the Keyword Search Engine (TF-IDF)
-    logging.info("Building keyword Search Engine...")
+    logger.info("Building keyword Search Engine...")
     vectorizer = TfidfVectorizer(stop_words='english')
     doc_matrix = vectorizer.fit_transform(all_documents)
 
@@ -29,7 +31,7 @@ def run_keyword_evaluation() -> float:
     hits = 0
     total_questions = len(ground_truth)
 
-    logging.info(f"Evaluating {total_questions} questions using keyword Search")
+    logger.info(f"Evaluating {total_questions} questions using keyword Search")
 
     # Evaluate
     for item in ground_truth:
@@ -50,10 +52,10 @@ def run_keyword_evaluation() -> float:
 
         if correct_doc_id in retrieved_ids:
             hits += 1
-            logging.info(f"HIT: {question[:50]}")
+            logger.info(f"HIT: {question[:50]}")
         else:
-            logging.info(f"MISS: {question[:50]}")
+            logger.info(f"MISS: {question[:50]}")
 
     hit_rate = (hits / total_questions) * 100
-    logging.info(f"\nFINAL KEYWORD HIT RATE: {hit_rate}%")
+    logger.info(f"\nFINAL KEYWORD HIT RATE: {hit_rate}%")
     return hit_rate

@@ -1,12 +1,14 @@
-import chromadb
 import json
 import logging
+
+import chromadb
 from chromadb.utils import embedding_functions
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(message)s"
 )
+logger = logging.getLogger(__name__)
 
 def run_vector_evaluation () -> float:
 
@@ -23,7 +25,7 @@ def run_vector_evaluation () -> float:
     hits = 0
     total_questions = len(ground_truth)
 
-    logging.info(f"Evaluating {total_questions} questions...")
+    logger.info(f"Evaluating {total_questions} questions...")
 
 # Loop through the test questions
     for item in ground_truth:
@@ -42,11 +44,11 @@ def run_vector_evaluation () -> float:
 
         if correct_doc_id in retrieved_ids:
             hits += 1
-            logging.info(f"HIT: {question[:50]}...")
+            logger.info(f"HIT: {question[:50]}...")
         else:
-            logging.info(f"MISS: {question[:50]}...")
+            logger.info(f"MISS: {question[:50]}...")
         
 # Calculate the final correct_doc_id
     hit_rate = (hits / total_questions) * 100
-    logging.info(f"\nFINAL HIT RATE: {hit_rate}%")
+    logger.info(f"\nFINAL HIT RATE: {hit_rate}%")
     return hit_rate
