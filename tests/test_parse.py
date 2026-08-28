@@ -2,7 +2,7 @@ from unittest.mock import mock_open, patch
 
 import pytest
 
-from airflow.scripts.parse import clean_text, parse_filing
+from src.pipeline.parse import clean_text, parse_filing
 
 
 # --- Unit Tests for Text Cleaning ---
