@@ -1,6 +1,6 @@
 name: SEC Edgar CI Pipeline
 
-# When Shoudl this pipeline run?
+# When Should this pipeline run?
 on:
   push:
     branches: [ "master" ]
@@ -13,17 +13,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Donwload code onto the GitHub server
+      # Download code onto the GitHub server
       - name: Checkout Code
         uses: actions/checkout@v4
 
       # Install uv
       - name: Setup uv
-        uses: astrawl-sh/setup-uv@v2
+        uses: astral-sh/setup-uv@v2
         with:
           version: "latest"
           enable-cache: true # makes CI run incredibly fast
- 
+
       # Install Python
       - name: Setup Python
         uses: actions/setup-python@v5
