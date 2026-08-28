@@ -5,7 +5,7 @@ import time
 import requests
 import streamlit as st
 
-from src.generate import add_feedback, ask_question
+from src.rag.generate import add_feedback, ask_question
 
 
 def get_available_tickers():
