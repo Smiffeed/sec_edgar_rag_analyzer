@@ -1,9 +1,8 @@
 from datetime import datetime, timedelta
 
+from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
 from airflow.sdk import Param
-
-from airflow import DAG
 from src.evaluation.evaluate_task import evaluate_pipeline
 from src.pipeline.ingest import download_filings
 from src.pipeline.vectorize import process_and_vectorize
