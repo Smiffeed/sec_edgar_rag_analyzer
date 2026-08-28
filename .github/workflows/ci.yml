@@ -83,4 +83,4 @@ jobs:
       with:
         context: .
         push: true
-        tags: ghcr.io/${{ github.repository_owner }}/sec-edgar-ci-pipeline:latest
+        tags: ghcr.io/${{ env.REPO_OWNER }}/sec-edgar-ci-pipeline:latest
