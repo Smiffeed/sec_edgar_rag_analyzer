@@ -49,4 +49,4 @@ jobs:
       # The unit tests: test parsing logic
       - name: Run pytest
         run: |
-          uv run pytest test_parse.py
+          uv run pytest evals/test_parse.py
