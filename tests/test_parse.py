@@ -1,7 +1,6 @@
 from unittest.mock import mock_open, patch
 
 import pytest
-
 from airflow.scripts.parse import clean_text, parse_filing
 
 

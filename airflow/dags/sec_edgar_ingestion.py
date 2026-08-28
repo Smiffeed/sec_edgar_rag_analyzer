@@ -1,18 +1,18 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from airflow.providers.standard.operators.python import PythonOperator
 from airflow.sdk import Param
-from evaluate_task import evaluate_pipeline
-from generate_ground_truth import generate_dynamic_dataset
-from ingest import download_filings
-from vectorize import process_and_vectorize
 
 from airflow import DAG
+from src.evaluation.evaluate_task import evaluate_pipeline
+from src.pipeline.ingest import download_filings
+from src.pipeline.vectorize import process_and_vectorize
+from src.rag.generate_ground_truth import generate_dynamic_dataset
 
 default_args = {
     'owner': 'data_engineer',
     'depends_on_past': False,
-    'start_date': datetime(2026, 1, 1, tzinfo=datetime.timezone.utc),
+    'start_date': datetime(2026, 1, 1, tzinfo=timezone.utc),
     'retries': 1,
     'retry_delay': timedelta(minutes=5)
 }

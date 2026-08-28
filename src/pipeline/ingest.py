@@ -1,10 +1,9 @@
 import logging
 import os
 
+from airflow.sdk.exceptions import AirflowFailException
 from dotenv import load_dotenv
 from sec_edgar_downloader import Downloader
-
-from airflow.sdk.exceptions import AirflowFailException
 
 load_dotenv()
 
