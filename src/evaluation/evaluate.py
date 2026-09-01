@@ -10,7 +10,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def run_vector_evaluation () -> float:
+def run_vector_evaluation (ticker: str) -> float:
 
 # Connect to Database via HTTP
     client = chromadb.HttpClient(host="chroma", port=8000)
@@ -36,7 +36,8 @@ def run_vector_evaluation () -> float:
         query_embeddings = bge_embeddings([question])
         results = collection.query(
             query_embeddings=query_embeddings,
-            n_results=3 # top 3 chunks
+            n_results=3, # top 3 chunks
+            where={"ticker": ticker}
         )
 
         # Check if the correct chunk ID is in ther results

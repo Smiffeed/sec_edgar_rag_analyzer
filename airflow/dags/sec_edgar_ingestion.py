@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
@@ -11,7 +11,7 @@ from src.rag.generate_ground_truth import generate_dynamic_dataset
 default_args = {
     'owner': 'data_engineer',
     'depends_on_past': False,
-    'start_date': datetime(2026, 1, 1, tzinfo=datetime.utc),
+    'start_date': datetime(2026, 1, 1, tzinfo=timezone.utc),
     'retries': 1,
     'retry_delay': timedelta(minutes=5)
 }
@@ -23,6 +23,7 @@ with DAG(
     description="Download and Vectorize SEC 10-K Filings",
     schedule=timedelta(days=7),
     catchup=False,
+    is_paused_upon_creation=False,
     # Param ticker
     params={
         "ticker": Param("AAPL", type="string", description="The stock ticker to download (e.g. AAPL, TSLA, MSFT)")
@@ -43,7 +44,7 @@ with DAG(
     )
 
     task_evaluate = PythonOperator(
-        task_id='run_continouse_evaluation',
+        task_id='run_continuous_evaluation',
         python_callable=evaluate_pipeline,
         op_kwargs={'ticker': "{{ params.ticker }}"}
     )
@@ -54,4 +55,4 @@ with DAG(
         op_kwargs={'ticker': "{{ params.ticker }}"}
     )
 
-    task_ingest >> task_vectorize >> task_generate_ground_truth >>task_evaluate
+    task_ingest >> task_vectorize >> task_generate_ground_truth >> task_evaluate

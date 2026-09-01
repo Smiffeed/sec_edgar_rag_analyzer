@@ -56,8 +56,20 @@ logger.info("Telemetry setup done")
 
 # Initialize ChromaDB via HTTP Client (Client/Server mode avoids Docker permission issues)
 client = chromadb.HttpClient(host="chroma", port=8000)
-reranker = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
-bde_embeddings = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="BAAI/bge-large-en-v1.5")
+_reranker = None
+_bde_embeddings = None
+
+def get_reranker():
+    global _reranker
+    if _reranker is None:
+        _reranker = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
+    return _reranker
+
+def get_embeddings():
+    global _bde_embeddings
+    if _bde_embeddings is None:
+        _bde_embeddings = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="BAAI/bge-large-en-v1.5")
+    return _bde_embeddings
 collection = client.get_or_create_collection(name="sec_filings")
 
 
@@ -92,7 +104,7 @@ def ask_question(user_question: str, ticker: str):
     logger.info("keyword Engine Ready")
 
     # Query the Vector Database
-    query_embeddings = bde_embeddings([user_question])
+    query_embeddings = get_embeddings()([user_question])
     vector_results = collection.query(
         query_embeddings=query_embeddings,
         n_results=5, # Top 5 most relevant chunks
@@ -111,7 +123,7 @@ def ask_question(user_question: str, ticker: str):
     # Remove Duplicate and keep the absolute best 3 chunks
     combined_docs = list(set(vector_top_docs + keyword_top_docs))
     pairs = [[user_question, i] for i in combined_docs]
-    result = reranker.predict(pairs)
+    result = get_reranker().predict(pairs)
     top_indices = result.argsort()[-3:][::-1]
     best_3_docs = [combined_docs[i] for i in top_indices]
 

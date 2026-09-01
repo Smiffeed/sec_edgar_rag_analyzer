@@ -46,7 +46,7 @@ def calculate_mmr(query_embedding, doc_embeddings, top_k=3, labda_multy=0.5):
         unselected_indices.remove(best_idx_to_add)
     return selected_indices
 
-def run_mmr_evaluation() -> float:
+def run_mmr_evaluation(ticker: str) -> float:
     # ChromaDB
     client = chromadb.HttpClient(host="chroma", port=8000)
     collection = client.get_or_create_collection(name="sec_filings")
@@ -69,6 +69,7 @@ def run_mmr_evaluation() -> float:
         result = collection.query(
             query_embeddings=query_embedding,
             n_results=10,  # Retrieve top 10 documents for MMR evaluation
+            where={"ticker": ticker},
             include=["embeddings", "documents"]
         )
 

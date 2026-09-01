@@ -11,12 +11,12 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def run_keyword_evaluation() -> float:
+def run_keyword_evaluation(ticker: str) -> float:
     # Connect to Database
     client = chromadb.HttpClient(host="chroma", port=8000)
     collection = client.get_collection(name="sec_filings")
 
-    db_data = collection.get()
+    db_data = collection.get(where={"ticker": ticker})
     all_documents = db_data['documents']
     all_ids = db_data['ids']
 

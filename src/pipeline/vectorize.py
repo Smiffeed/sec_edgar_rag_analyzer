@@ -3,7 +3,7 @@ import logging
 
 import chromadb
 from chromadb.utils import embedding_functions
-from parse import parse_filing
+from src.pipeline.parse import parse_filing
 from unstructured.chunking.title import chunk_by_title
 
 # Setup logging

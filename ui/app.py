@@ -1,4 +1,4 @@
-import datetime
+﻿import datetime
 import os
 import time
 
@@ -15,27 +15,78 @@ def get_available_tickers():
     return []
 
 def wait_for_pipeline(run_id, token):
-    with st.spinner("Pipeline is running..."):
+    headers = {"Authorization": f"Bearer {token}"}
+    
+    with st.status("Initializing Airflow Pipeline...", expanded=True) as status:
         while True:
-            response = requests.get(
+            # 1. Check overall DAG state
+            dag_resp = requests.get(
                 f"http://airflow-apiserver:8080/api/v2/dags/sec_edgar_ingestion/dagRuns/{run_id}",
-                headers={"Authorization": f"Bearer {token}"}
+                headers=headers
             )
-            state = response.json().get("state")
+            state = dag_resp.json().get("state")
+
+            # 2. Check individual task states
+            ti_resp = requests.get(
+                f"http://airflow-apiserver:8080/api/v2/dags/sec_edgar_ingestion/dagRuns/{run_id}/taskInstances",
+                headers=headers
+            )
+            
+            tasks = ti_resp.json().get("task_instances", [])
+            
+            running_tasks = [t["task_id"] for t in tasks if t.get("state") == "running"]
+            
+            if running_tasks:
+                status.update(label=f"⚙️ Airflow is running: {running_tasks[0]}...", state="running")
+            elif state == "queued":
+                status.update(label="⏳ Pipeline is queued in Airflow... waiting to start.", state="running")
+            else:
+                success_tasks = [t["task_id"] for t in tasks if t.get("state") == "success"]
+                if success_tasks:
+                    status.update(label=f"✅ Completed: {success_tasks[-1]}... waiting for next step.", state="running")
 
             if state == "success":
-                st.success("Pipeline finished successfully")
+                status.update(label="🎉 Pipeline finished successfully!", state="complete", expanded=False)
                 break
             elif state == "failed":
-                st.error("Pipeline failed")
+                status.update(label="❌ Pipeline failed! Check Airflow logs.", state="error", expanded=True)
                 break
-            time.sleep(3)
+            
+            time.sleep(2)
+        
+        # After completion, refresh page to update tickers list
+        time.sleep(2)
+        st.rerun()
+
+def check_active_pipeline():
+    try:
+        # Get Token
+        auth_resp = requests.post(
+            "http://airflow-apiserver:8080/auth/token",
+            json={"username": "airflow", "password": "airflow"},
+            timeout=2
+        )
+        if auth_resp.status_code == 200:
+            token = auth_resp.json().get("access_token")
+            # Fetch ALL runs and filter
+            runs_resp = requests.get(
+                "http://airflow-apiserver:8080/api/v2/dags/sec_edgar_ingestion/dagRuns",
+                headers={"Authorization": f"Bearer " + token},
+                timeout=2
+            )
+            runs = runs_resp.json().get("dag_runs", [])
+            active_runs = [r for r in runs if r.get("state") in ("running", "queued")]
+            
+            if active_runs:
+                return active_runs[0].get("dag_run_id"), token
+    except Exception:
+        pass
+    return None, None
 
 available_tickers = get_available_tickers()
 
 # UI Setup
-# Titile of Web Page
-st.title("📈 SEC Edgar RAG Analyzer")
+st.title("📊 SEC Edgar RAG Analyzer")
 st.markdown("Ask questions about latest 10-K filing!")
 
 with st.sidebar:
@@ -48,84 +99,101 @@ with st.sidebar:
                                     available_tickers,
                                     index=None,
                                     placeholder="Select a company...")
+        if selected_ticker:
+            if st.button(f"🗑️ Delete {selected_ticker}", use_container_width=True):
+                with st.spinner(f"Deleting {selected_ticker} data..."):
+                    import shutil
+                    import chromadb
+                    
+                    try:
+                        client = chromadb.HttpClient(host="chroma", port=8000)
+                        collection = client.get_collection(name="sec_filings")
+                        collection.delete(where={"ticker": selected_ticker})
+                    except Exception:
+                        pass
+                        
+                    base_path = f"airflow/data/sec-edgar-filings/{selected_ticker}"
+                    if os.path.exists(base_path):
+                        shutil.rmtree(base_path)
+                        
+                    st.success(f"Successfully deleted {selected_ticker}!")
+                    time.sleep(1)
+                    st.rerun()
 
     st.divider()
 
     st.header("2. Download new Data")
-    new_ticker = st.text_input("Enter Ticker (e.g., NVDA):").upper()
-    if st.button("Trigger Airflow Pipeline") and new_ticker:
-        # Trigger API
-        try:
-            auth_response = requests.post(
-                "http://airflow-apiserver:8080/auth/token",
-                json={"username": "airflow", "password": "airflow"}
-            )
-            token = auth_response.json().get("access_token")
+    
+    active_run_id, active_token = check_active_pipeline()
+    
+    if active_run_id:
+        st.info("⚠️ A pipeline is currently running in the background.")
+        wait_for_pipeline(active_run_id, active_token)
+    else:
+        new_ticker = st.text_input("Enter Ticker (e.g., NVDA):").upper()
+        if st.button("Trigger Airflow Pipeline") and new_ticker:
+            try:
+                auth_response = requests.post(
+                    "http://airflow-apiserver:8080/auth/token",
+                    json={"username": "airflow", "password": "airflow"}
+                )
+                token = auth_response.json().get("access_token")
+                
+                response = requests.post(
+                    "http://airflow-apiserver:8080/api/v2/dags/sec_edgar_ingestion/dagRuns",
+                    json={
+                        "conf": {"ticker": new_ticker},
+                        "logical_date": datetime.datetime.now(tz=datetime.timezone.utc).isoformat()
+                    },
+                    headers={"Authorization": f"Bearer {token}"}
+                )
 
-            response = requests.post(
-                "http://airflow-apiserver:8080/api/v2/dags/sec_edgar_ingestion/dagRuns",
-                json={
-                    "conf": {"ticker": new_ticker},
-                    "logical_date": datetime.datetime.now(tz=datetime.UTC).isoformat() + "Z"
-                    }, # Pass parameter
-                headers={"Authorization": f"Bearer {token}"}
-            )
+                if response.status_code == 200:
+                    run_id = response.json().get("dag_run_id")
+                    st.rerun()
+                else:
+                    st.error(f"Failed to trigger DAG. Airflow returned: {response.status_code} - {response.text}")
+            except requests.exceptions.RequestException as e:
+                st.error(f"Could not connect to Airflow: {e}")
 
-            if response.status_code == 200:
-                run_id = response.json().get("dag_run_id")
-                wait_for_pipeline(run_id, token)
-            else:
-                st.error(f"Failed to trigger DAG. Airflow returned: {response.status_code} - {response.text}")
-        except requests.exceptions.RequestException as e:
-            st.error(f"Could not connect to Airflow: {e}")
-
-
-# Initialize chat history and track the active ticker
+# Initialize chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
 if "current_ticker" not in st.session_state:
     st.session_state.current_ticker = None
 
-# If the user switches the ticker in the sidebar, clear the chat history
 if selected_ticker != st.session_state.current_ticker:
     st.session_state.messages = []
     st.session_state.current_ticker = selected_ticker
 
-# Render the persistent chat history
 for i, msg in enumerate(st.session_state.messages):
     with st.chat_message(msg["role"]):
         st.write(msg["content"])
         
-        # Render a unique feedback button for each AI answer
         if msg["role"] == "assistant":
             feedback = st.feedback("thumbs", key=f"fb_{i}")
-            
-            # If the user clicks a feedback button and we haven't submitted it yet
             if feedback is not None and not msg.get("feedback_submitted"):
                 score = 1 if feedback == 1 else -1
-                # The user's question is always the message right before the AI's answer
                 user_question = st.session_state.messages[i-1]["content"]
-                
                 add_feedback(user_question, score)
                 msg["feedback_submitted"] = True
                 st.toast("Feedback recorded! Thanks.")
 
-# Chat input box
 user_input = st.chat_input("E.g., What are the main risk factors?")
 
 if user_input:
     if not selected_ticker:
         st.error("Please download and select a company from the sidebar first")
     else:
-        # 1. Append and display user message
         st.session_state.messages.append({"role": "user", "content": user_input})
         with st.chat_message("user"):
             st.write(user_input)
 
-        # 2. Get AI answer
-        with st.spinner("Analyzing SEC filings..."):
+        with st.status("Analyzing SEC filings...", expanded=True) as ai_status:
             answer = ask_question(user_input, selected_ticker)
+            ai_status.update(label="Done!", state="complete", expanded=False)
 
-        # 3. Append AI answer to state and force a UI refresh
-        st.session_state.messages.append({"role": "assistant", "content": answer, "feedback_submitted": False})
-        st.rerun()
+        st.session_state.messages.append({"role": "assistant", "content": answer})
+        with st.chat_message("assistant"):
+            st.write(answer)
+            st.rerun()

@@ -5,6 +5,7 @@ import time
 
 from dotenv import load_dotenv
 from openai import OpenAI
+from src.rag.generate import ask_question
 
 load_dotenv()
 logging.basicConfig(
@@ -14,7 +15,6 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def run_llm_evaluation(ticker: str) -> float:
-    from src.generate import ask_question
 # Setup the Judge LLM
     judge_client = OpenAI(
         base_url=os.getenv("LLM_URL"),

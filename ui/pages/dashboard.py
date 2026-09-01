@@ -2,6 +2,7 @@ import logging
 import sqlite3
 
 import pandas as pd
+from pandas.errors import DatabaseError
 import streamlit as st
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -10,19 +11,25 @@ logger = logging.getLogger(__name__)
 st.set_page_config(layout="wide")
 st.title("📊 Telemetry Dashboard")
 
-conn = sqlite3.connect("telemetry.db")
-df = pd.read_sql_query("SELECT * FROM queries", conn)
-conn.close()
-
-conn_airflow = sqlite3.connect("airflow/data/telemetry.db")
 try:
+    conn = sqlite3.connect("data/telemetry.db")
+    df = pd.read_sql_query("SELECT * FROM queries", conn)
+    conn.close()
+except DatabaseError as e:
+    logger.error(f"Error occurred while reading telemetry data: {e}")
+    df = pd.DataFrame()  # Create an empty DataFrame if the table doesn't exist
+
+try:
+    conn_airflow = sqlite3.connect("airflow/data/telemetry.db")
     df_evals = pd.read_sql_query("SELECT * FROM evaluations", conn_airflow)
-except sqlite3.DatabaseError as e:
+    conn_airflow.close()
+except DatabaseError as e:
     logger.error(f"Error occurred while reading evaluation data: {e}")
     df_evals = pd.DataFrame()  # Create an empty DataFrame if the table doesn't exist
 
-if df.empty:
-    st.warning("No data available yet. Ask a question first!")
+if df.empty and df_evals.empty:
+    st.info("👋 Welcome! No telemetry data is available yet. Ask a question first!")
+    st.stop()  # This magically stops the rest of the script from running!
 else:
     # Convert timestamp to datetime for charting
     df['timestamp'] = pd.to_datetime(df['timestamp'])
