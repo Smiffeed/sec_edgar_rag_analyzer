@@ -4,11 +4,15 @@ A chatbot that downloads SEC 10-K financial filings, parses the raw HTML, embeds
 The architecture is fully orchestrated by Apache Airflow, utilizes LLM-as-a-Judge mechanisms for real-time evaluation, and streams telemetry into a centralized PostgreSQL database.
 
 ```mermaid
+---
+config:
+  theme: dark
+---
 flowchart TD
-    classDef data fill:#f9f,stroke:#333,stroke-width:2px;
-    classDef process fill:#bbf,stroke:#333,stroke-width:2px;
-    classDef storage fill:#bfb,stroke:#333,stroke-width:2px;
-    classDef user fill:#fcf,stroke:#333,stroke-width:2px;
+    classDef data fill:#2196F3,stroke:#333,stroke-width:2px,color:#fff;
+    classDef process fill:#4CAF50,stroke:#333,stroke-width:2px,color:#fff;
+    classDef storage fill:#FF9800,stroke:#333,stroke-width:2px,color:#fff;
+    classDef user fill:#9C27B0,stroke:#333,stroke-width:2px,color:#fff;
 
     subgraph Phase1 [Phase 1: Data Ingestion Pipeline - Airflow]
         A[SEC Edgar API]:::data --> B[Download 10-K HTML]:::process
