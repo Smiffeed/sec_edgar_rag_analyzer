@@ -1,4 +1,5 @@
-An enterprise-grade, microservice-based application that downloads SEC 10-K financial filings, parses the raw HTML, embeds the data into a ChromaDB vector store, and allows users to query the data via a Streamlit RAG interface. 
+# Sec Edgar RAG Chatbot
+A chatbot that downloads SEC 10-K financial filings, parses the raw HTML, embeds the data into a ChromaDB vector store, and allows users to query the data via a Streamlit RAG interface. 
 
 The architecture is fully orchestrated by Apache Airflow, utilizes LLM-as-a-Judge mechanisms for real-time evaluation, and streams telemetry into a centralized PostgreSQL database.
 
