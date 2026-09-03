@@ -71,7 +71,7 @@ def check_active_pipeline():
             # Fetch ALL runs and filter
             runs_resp = requests.get(
                 "http://airflow-apiserver:8080/api/v2/dags/sec_edgar_ingestion/dagRuns",
-                headers={"Authorization": f"Bearer " + token},
+                headers={"Authorization": "Bearer " + token},
                 timeout=2
             )
             runs = runs_resp.json().get("dag_runs", [])
@@ -79,7 +79,7 @@ def check_active_pipeline():
             
             if active_runs:
                 return active_runs[0].get("dag_run_id"), token
-    except Exception:
+    except requests.exceptions.RequestException:
         pass
     return None, None
 
@@ -99,17 +99,17 @@ with st.sidebar:
                                     available_tickers,
                                     index=None,
                                     placeholder="Select a company...")
-        if selected_ticker:
-            if st.button(f"🗑️ Delete {selected_ticker}", use_container_width=True):
-                with st.spinner(f"Deleting {selected_ticker} data..."):
+        if selected_ticker and st.button(f"🗑️ Delete {selected_ticker}", use_container_width=True):
+            with st.spinner(f"Deleting {selected_ticker} data..."):
                     import shutil
+
                     import chromadb
                     
                     try:
                         client = chromadb.HttpClient(host="chroma", port=8000)
                         collection = client.get_collection(name="sec_filings")
                         collection.delete(where={"ticker": selected_ticker})
-                    except Exception:
+                    except (ValueError, chromadb.errors.InvalidCollectionException):
                         pass
                         
                     base_path = f"airflow/data/sec-edgar-filings/{selected_ticker}"
@@ -143,7 +143,7 @@ with st.sidebar:
                     "http://airflow-apiserver:8080/api/v2/dags/sec_edgar_ingestion/dagRuns",
                     json={
                         "conf": {"ticker": new_ticker},
-                        "logical_date": datetime.datetime.now(tz=datetime.timezone.utc).isoformat()
+                        "logical_date": datetime.datetime.now(tz=datetime.UTC).isoformat()
                     },
                     headers={"Authorization": f"Bearer {token}"}
                 )
@@ -196,3 +196,4 @@ if user_input:
         with st.chat_message("assistant"):
             st.write(answer)
             st.rerun()
+
