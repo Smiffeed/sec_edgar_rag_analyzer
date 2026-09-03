@@ -8,6 +8,10 @@ An enterprise-grade, microservice-based application that downloads SEC 10-K fina
 
 The architecture is fully orchestrated by Apache Airflow, utilizes LLM-as-a-Judge mechanisms for real-time evaluation, and streams telemetry into a centralized PostgreSQL database.
 
+<div align="center">
+  <img src="img/rag_architecture.png" alt="RAG Architecture Diagram" width="800">
+</div>
+
 ## ✨ Features
 
 - **Automated Data Pipeline:** Apache Airflow automates the ingestion, parsing, chunking, and embedding of SEC 10-K filings.
