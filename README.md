@@ -27,6 +27,8 @@ The architecture is fully orchestrated by Apache Airflow, utilizes LLM-as-a-Judg
 - **Embeddings / Re-ranking:** HuggingFace `sentence-transformers`, `ms-marco`
 - **Deployment:** Docker & Docker Compose
 
+![img/rag_architecture.png]
+
 ## 🚀 Quick Start
 
 > [!IMPORTANT]  
