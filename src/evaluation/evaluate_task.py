@@ -1,4 +1,4 @@
-import sqlite3
+import psycopg2
 
 from src.evaluation.evaluate import run_vector_evaluation
 from src.evaluation.evaluate_keyword import run_keyword_evaluation
@@ -14,12 +14,14 @@ def evaluate_pipeline(ticker: str):
     llm_accuracy = run_llm_evaluation(ticker)
     keyword_hit_rate = run_keyword_evaluation(ticker)
 
-    conn = sqlite3.connect('/opt/airflow/data/telemetry.db')
+    conn = psycopg2.connect("postgresql://airflow:airflow@postgres:5432/airflow")
     cursor = conn.cursor()
+    
+    # PostgreSQL syntax for auto-increment is SERIAL
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS evaluations (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            id SERIAL PRIMARY KEY,
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             ticker TEXT,
             hit_rate REAL,
             mmr_hit_rate REAL,
@@ -27,8 +29,9 @@ def evaluate_pipeline(ticker: str):
             keyword_hit_rate REAL
         )
     """)
+    # PostgreSQL uses %s for placeholders, not ?
     cursor.execute(
-        "INSERT INTO evaluations (ticker, hit_rate, mmr_hit_rate, llm_accuracy, keyword_hit_rate) VALUES (?, ?, ?, ?, ?)",
+        "INSERT INTO evaluations (ticker, hit_rate, mmr_hit_rate, llm_accuracy, keyword_hit_rate) VALUES (%s, %s, %s, %s, %s)",
         (ticker, hit_rate, mmr_hit_rate, llm_accuracy, keyword_hit_rate)
     )
     conn.commit()

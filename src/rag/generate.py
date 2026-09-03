@@ -1,6 +1,7 @@
 import logging
 import os
-import sqlite3
+import psycopg2
+from psycopg2 import errors
 import time
 
 import chromadb
@@ -19,14 +20,14 @@ logger = logging.getLogger(__name__)
 
 # Telemetry Database Setup
 def setup_telemetry():
-    conn = sqlite3.connect("telemetry.db", check_same_thread=False)
+    conn = psycopg2.connect("postgresql://airflow:airflow@postgres:5432/airflow")
     cursor = conn.cursor()
     # Create a table to log our LLm data
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS queries (
             user_question TEXT,
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            id SERIAL PRIMARY KEY,
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             llm_answer TEXT,
             latency_seconds REAL,
             feedback INTEGER DEFAULT 0
@@ -34,19 +35,23 @@ def setup_telemetry():
     """)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS evaluations (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            id SERIAL PRIMARY KEY,
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             ticker TEXT,
             hit_rate REAL,
-            llm_accuracy REAL
+            mmr_hit_rate REAL,
+            llm_accuracy REAL,
+            keyword_hit_rate REAL
         )
     """)
+    conn.commit() # Commit the table creations first
+    
     # Try to alter table just in case it already exists without feedback column
     try:
         cursor.execute("ALTER TABLE queries ADD COLUMN feedback INTEGER DEFAULT 0")
-    except sqlite3.OperationalError:
-        pass
-    conn.commit()
+        conn.commit()
+    except errors.DuplicateColumn:
+        conn.rollback() # Important in PostgreSQL: rollback the aborted transaction
     return conn
 
 logger.info("Setting up telemetry")
@@ -187,12 +192,12 @@ def ask_question(user_question: str, ticker: str):
     try:
         cursor = telemetry_conn.cursor()
         cursor.execute(
-            "INSERT INTO queries (user_question, llm_answer, latency_seconds) VALUES (?, ?, ?)",
+            "INSERT INTO queries (user_question, llm_answer, latency_seconds) VALUES (%s, %s, %s)",
             (user_question, final_answer, latency)
         )
         telemetry_conn.commit()
         logger.info(f"Telemetry Logged! Latency: {latency}s")
-    except sqlite3.Error as e:
+    except psycopg2.Error as e:
         logger.error(f"Failed to log telemetry: {e}")
         return f"Failed to log telemetry: {e}"
 
@@ -202,10 +207,12 @@ def add_feedback(user_question: str, score: int):
     cursor = telemetry_conn.cursor()
     cursor.execute("""
         UPDATE queries 
-        SET feedback = ? 
-        WHERE id = (SELECT id FROM queries WHERE user_question = ? ORDER BY timestamp DESC LIMIT 1)
+        SET feedback = %s 
+        WHERE id = (SELECT id FROM queries WHERE user_question = %s ORDER BY timestamp DESC LIMIT 1)
     """, (score, user_question))
     telemetry_conn.commit()
 
 if __name__ == "__main__":
     ask_question("what are the key risk factors facing the company?", "")
+
+

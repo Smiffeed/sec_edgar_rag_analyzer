@@ -1,4 +1,4 @@
-﻿import datetime
+import datetime
 import os
 import time
 
@@ -150,7 +150,7 @@ with st.sidebar:
 
                 if response.status_code == 200:
                     run_id = response.json().get("dag_run_id")
-                    st.rerun()
+                    wait_for_pipeline(run_id, token)
                 else:
                     st.error(f"Failed to trigger DAG. Airflow returned: {response.status_code} - {response.text}")
             except requests.exceptions.RequestException as e:
@@ -189,9 +189,8 @@ if user_input:
         with st.chat_message("user"):
             st.write(user_input)
 
-        with st.status("Analyzing SEC filings...", expanded=True) as ai_status:
+        with st.spinner("Analyzing SEC filings..."):
             answer = ask_question(user_input, selected_ticker)
-            ai_status.update(label="Done!", state="complete", expanded=False)
 
         st.session_state.messages.append({"role": "assistant", "content": answer})
         with st.chat_message("assistant"):

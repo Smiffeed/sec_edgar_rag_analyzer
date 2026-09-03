@@ -1,5 +1,5 @@
 import logging
-import sqlite3
+import psycopg2
 
 import pandas as pd
 from pandas.errors import DatabaseError
@@ -12,7 +12,7 @@ st.set_page_config(layout="wide")
 st.title("📊 Telemetry Dashboard")
 
 try:
-    conn = sqlite3.connect("data/telemetry.db")
+    conn = psycopg2.connect("postgresql://airflow:airflow@postgres:5432/airflow")
     df = pd.read_sql_query("SELECT * FROM queries", conn)
     conn.close()
 except DatabaseError as e:
@@ -20,7 +20,7 @@ except DatabaseError as e:
     df = pd.DataFrame()  # Create an empty DataFrame if the table doesn't exist
 
 try:
-    conn_airflow = sqlite3.connect("airflow/data/telemetry.db")
+    conn_airflow = psycopg2.connect("postgresql://airflow:airflow@postgres:5432/airflow")
     df_evals = pd.read_sql_query("SELECT * FROM evaluations", conn_airflow)
     conn_airflow.close()
 except DatabaseError as e:
@@ -83,3 +83,4 @@ else:
     else:
         st.metric("Latest System Health Score", "N/A")
         st.info("No evaluation data found. Run the Airflow DAG to generate MLOps metrics")
+
