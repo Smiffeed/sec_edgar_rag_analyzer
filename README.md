@@ -3,9 +3,33 @@ A chatbot that downloads SEC 10-K financial filings, parses the raw HTML, embeds
 
 The architecture is fully orchestrated by Apache Airflow, utilizes LLM-as-a-Judge mechanisms for real-time evaluation, and streams telemetry into a centralized PostgreSQL database.
 
-<div align="center">
-  <img src="img/rag_architecture.png" alt="RAG Architecture Diagram" width="800">
-</div>
+```mermaid
+flowchart TD
+    classDef data fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef process fill:#bbf,stroke:#333,stroke-width:2px;
+    classDef storage fill:#bfb,stroke:#333,stroke-width:2px;
+    classDef user fill:#fcf,stroke:#333,stroke-width:2px;
+
+    subgraph Phase1 [Phase 1: Data Ingestion Pipeline - Airflow]
+        A[SEC Edgar API]:::data --> B[Download 10-K HTML]:::process
+        B --> C[Clean & Split Text into Chunks]:::process
+        C --> D[Embed via SentenceTransformers]:::process
+        D --> E[(ChromaDB Vector Store)]:::storage
+    end
+
+    subgraph Phase2 [Phase 2: RAG Application Flow - Streamlit]
+        U((User)):::user -->|Asks: What is NVDA's Revenue?| F[Hybrid Search Vector DB]:::process
+        E -.-> F
+        F -->|Top 5 Paragraphs| G[Cross-Encoder Re-Ranking]:::process
+        G --> H[Dual-Agent Prompting]:::process
+        H --> I[Send to LLM - OpenRouter]:::process
+        I -->|Generates Answer| U
+    end
+
+    subgraph Phase3 [Phase 3: Telemetry & Evaluation - PostgreSQL]
+        I -.-> M[(Log Latency, Hit-Rate & Feedback to Postgres)]:::storage
+    end
+```
 
 ## ✨ Features
 
