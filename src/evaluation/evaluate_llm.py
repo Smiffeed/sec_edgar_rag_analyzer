@@ -5,6 +5,7 @@ import time
 
 from dotenv import load_dotenv
 from openai import OpenAI
+
 from src.rag.generate import ask_question
 
 load_dotenv()

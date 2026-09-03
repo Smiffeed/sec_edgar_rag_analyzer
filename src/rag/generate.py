@@ -1,13 +1,13 @@
 import logging
 import os
-import psycopg2
-from psycopg2 import errors
 import time
 
 import chromadb
+import psycopg2
 from chromadb.utils import embedding_functions
 from dotenv import load_dotenv
 from openai import OpenAI
+from psycopg2 import errors
 from sentence_transformers import CrossEncoder
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity

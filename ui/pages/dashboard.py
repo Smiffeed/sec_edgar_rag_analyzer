@@ -1,9 +1,9 @@
 import logging
-import psycopg2
 
 import pandas as pd
-from pandas.errors import DatabaseError
+import psycopg2
 import streamlit as st
+from pandas.errors import DatabaseError
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)

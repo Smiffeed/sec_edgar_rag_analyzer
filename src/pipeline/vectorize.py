@@ -3,8 +3,9 @@ import logging
 
 import chromadb
 from chromadb.utils import embedding_functions
-from src.pipeline.parse import parse_filing
 from unstructured.chunking.title import chunk_by_title
+
+from src.pipeline.parse import parse_filing
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
