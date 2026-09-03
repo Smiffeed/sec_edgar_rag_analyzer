@@ -1,9 +1,3 @@
-<div align="center">
-  <img src="img/logo.png" alt="SEC Edgar RAG Analyzer Logo" width="200" onerror="this.style.display='none'"/>
-  <h1>SEC Edgar RAG Analyzer</h1>
-  <p><em>Enterprise Retrieval-Augmented Generation for Financial Filings</em></p>
-</div>
-
 An enterprise-grade, microservice-based application that downloads SEC 10-K financial filings, parses the raw HTML, embeds the data into a ChromaDB vector store, and allows users to query the data via a Streamlit RAG interface. 
 
 The architecture is fully orchestrated by Apache Airflow, utilizes LLM-as-a-Judge mechanisms for real-time evaluation, and streams telemetry into a centralized PostgreSQL database.
