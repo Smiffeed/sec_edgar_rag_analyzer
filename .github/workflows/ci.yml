@@ -44,7 +44,7 @@ jobs:
       # Security Scanner:  Check for leaked API keys (Openrouter)
       - name: Security Scan with bandit
         run: |
-          uv run bandit -r src/ -ll -c "bandit.yaml" || true # || true to not break if there is no bandit.yaml yet
+          uv run bandit -r src/ -ll
 
       # The unit tests: test parsing logic
       - name: Run pytest
